@@ -1,0 +1,969 @@
+.*******************************************************************************
+.* Program Name:      UTRTVSPLFA -- Retrieve Spool File Attributes - Help      *
+.* Programmer:        Dave L Clark I                                           *
+.* Date:              September 29, 2016                                       *
+.* Project/Request #: JIRA IN-44 Retrieve Spool File Attributes                *
+.* Purpose:           This command retrieves the spool file attributes for     *
+.*                    a selected spool file entry.                             *
+.*******************************************************************************
+.* Technical Notes:                                                            *
+.*                                                                             *
+.* NONE                                                                        *
+.*                                                                             *
+.*******************************************************************************
+.* Modification Log:                                                           *
+.*                                                                             *
+.* Mod#    Date       User       Description                                   *
+.* ---- ---------- ---------- ------------------------------------------------ *
+.* M001                                                                        *
+.*******************************************************************************
+:pnlgrp.
+
+.************************************************************************
+.*  Help for command UTRTVSPLFA
+.************************************************************************
+:help name='UTRTVSPLFA'.
+Retrieve Spool File Attributes - Help
+:p.The Retrieve Spool File Attributes (UTRTVSPLFA) command opens a
+list of selected spooled file entries and returns their attributes as
+directed.  The first invocation returns the attributes for the first
+entry selected.  Additional invocations are required if atttributes
+for any additional entries are also required.
+:p.When there are no more entries to retrieve, the internal list is
+closed automatically and an exception is raised.  If all entries are
+not to be retrieved then an additional invocation is required in order
+to force the internal list closed.  See the first parameter for more
+information.
+:note.There are two sets of retrieval parameters associated with this
+command.  The first set are made available automatically once the
+Spooled file (FILE) parameter has been specified and the ENTER key is
+pressed.  Alternatively, all retrieval parameters can be requested by
+pressing the Additional Parameters (F10) function key.  The second set
+of retrieval parameters require additional processor time for retrieval.
+:ent.
+:p.:hp2.Restrictions::ehp2.
+:ul.
+:li.
+Must be executed from a CL/ILE or REXX program.  It cannot be executed
+from a command line because return variables are required for the
+retrieved information.
+:eul.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter FILE
+.*******************************************
+:help name='UTRTVSPLFA/FILE'.
+Spooled file (FILE) - Help
+:xh3.Spooled file (FILE)
+:p.Specifies the name of the spooled file entries to select.  This
+name can be generic, but selection is not restricted to a particular
+spooled file name.  Additional selection criteria can be based on
+qualified job name or several other attributes as shown in the
+selection parameter list.  In addition, this parameter provides the
+ability to retrieve attribtues for more than just a single spooled
+file entry.  See the descriptions below.
+:p.This is a required parameter.
+:parml.
+:pt.:pv.name:epv.
+:pd.
+Specify the full name of a particular spooled file entry or
+entries.  This closes any previous selection list and opens a
+new selection list for retrieval.
+:pt.:pv.generic-name:epv.
+:pd.
+Specify the generic name of a particular spooled file entry or
+entries.  This closes any previous selection list and opens a
+new selection list for retrieval.  Note that a generic name
+ends with an asterisk.
+:pt.:pk.*SELECT:epk.
+:pd.
+If a spooled file name is not part of the desired selection criteria,
+then specify this value to indicate that other selection parameters
+will be specified.  This closes any previous selection list and
+opens a new selection list for retrieval.
+:pt.:pk.*NEXT:epk.
+:pd.
+After the attributes for the first selected spooled file entry has
+been retrieved, any additional spooled file entries in the same
+selection list can be retrieved by specifying this value.  No
+additional selection parameters are honored with this value.  The
+original selection parameteres are still in force.  Then, when
+there are no more entries to retrieve, the internal list is closed
+automatically and an exception is raised.
+:pt.:pk.*CLOSE:epk.
+:pd.
+If all entries in a selection list are not going to be retrieved,
+specify this value to forcibly close the current selection list.  If
+all selection entries have been retrieved, this close takes place
+automatically and no additional command invocations are required.  No
+additional parameters are honored with this value.
+:eparml.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter JOB
+.*******************************************
+:help name='UTRTVSPLFA/JOB'.
+Job name (JOB) - Help
+:xh3.Job name (JOB)
+:p.Specifies a qualified job name as additional criteria for opening
+and reading from a selection list of matching spooled file entries.
+:p.:hp2.Single values:ehp2.
+:parml.
+:pt.:pk def.*ANY:epk.
+:pd.
+This value indicates that any spooled file entry, regardless of the
+associated qualified job name, is accepted as a match.
+:pt.:pk.*:epk.
+:pd.
+This value indicates that only spooled file entries whose qualified
+job names are the same as the current job are accepted as a match.
+:eparml.
+:p.:hp2.Qualifier 1: Job name:ehp2.
+:parml.
+:pt.:pv.name:epv.
+:pd.
+Specify the job name to use as selection criteria.
+:eparml.
+:p.:hp2.Qualifier 2: User:ehp2.
+:parml.
+:pt.:pv.name:epv.
+:pd.
+Specify the job user to use as selection criteria.
+:eparml.
+:p.:hp2.Qualifier 3: Number:ehp2.
+:parml.
+:pt.:pv.000000-999999:epv.
+:pd.
+Specify the job number to use as selection criteria.
+:eparml.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter SPLNBR
+.*******************************************
+:help name='UTRTVSPLFA/SPLNBR'.
+Spooled file number (SPLNBR) - Help
+:xh3.Spooled file number (SPLNBR)
+:p.Specifies a spooled file number as additional criteria for opening
+and reading from a selection list of matching spooled file entries.
+:parml.
+:pt.:pk def.*ANY:epk.
+:pd.
+This value indicates that any spooled file entry, regardless of the
+associated spooled file number, is accepted as a match.
+:pt.:pk.*ONLY:epk.
+:pd.
+This value indicates that only a single spooled file entry is
+expected as a match.
+:pt.:pk.*LAST:epk.
+:pd.
+If a qualified job name was specified as selection criteria, then this
+value indicates that only the last spooled file entry for that job
+should be accepted as a match.
+:pt.:pv.1-999999:epv.
+:pd.
+Specify the spooled file number to use as selection criteria.
+:eparml.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter SELECT
+.*******************************************
+:help name='UTRTVSPLFA/SELECT'.
+Select spooled files by (SELECT) - Help
+:xh3.Select spooled files by (SELECT)
+:p.Specifies various additional criteria for opening and reading
+from a selection list of matching spooled file entries.
+:p.:hp2.Element 1: User:ehp2.
+:parml.
+:pt.:pk def.*CURRENT:epk.
+:pd.
+Only spooled file entries for the current user are accepted
+as a match.
+:pt.:pk.*ALL:epk.
+:pd.
+All spooled file entries are accepted as a match regardless of the
+associated user.
+:pt.:pv.name:epv.
+:pd.
+Only spooled file entries for the specified user are accepted
+as a match.
+:eparml.
+:p.:hp2.Element 2: Print device:ehp2.
+:parml.
+:pt.:pk def.*ALL:epk.
+:pd.
+All spooled file entries are accepted as a match regardless of the
+associated device-created or user-created output queue.
+:pt.:pk.*OUTQ:epk.
+:pd.
+Only spooled file entries in a user-created output queue
+are accepted as a match.
+:pt.:pv.name:epv.
+:pd.
+Only spooled file entries in the specified device-created output
+queue are accepted as a match.
+:eparml.
+:p.:hp2.Element 3: Form type:ehp2.
+:parml.
+:pt.:pk def.*ALL:epk.
+:pd.
+All spooled file entries are accepted as a match regardless of the
+associated form type.
+:pt.:pk.*STD:epk.
+:pd.
+Only spooled file entries that specify the standard form type
+are accepted as a match.
+:pt.:pv.character-value:epv.
+:pd.
+Only spooled file entries that have the specified form type
+are accepted as a match.
+:eparml.
+:p.:hp2.Element 4: User data:ehp2.
+:parml.
+:pt.:pk def.*ALL:epk.
+:pd.
+All spooled file entries are accepted as a match regardless of the
+associated user data tag.
+:pt.:pv.generic-name:epv.
+:pd.
+Only spooled file entries with a generically matching user data tag
+are accepted in the selection list.
+:pt.:pv.character-value:epv.
+:pd.
+Only spooled file entries that have a matching user data tag
+are accepted in the selection list.
+:eparml.
+:p.:hp2.Element 5: ASP:ehp2.
+:parml.
+:pt.:pk def.*ALL:epk.
+:pd.
+All spooled file entries are accepted as a match regardless of the
+associated Auxiliary Storage Pool (ASP).
+:pt.:pk.*ASPDEV:epk.
+:pd.
+Only spooled file entries for the specified Auxiliary Storage Pool
+Device (see ASPDEV parameter) are accepted as a match.
+:pt.:pv.1-32:epv.
+:pd.
+Only spooled file entries for the specified Auxiliary Storage Pool
+(ASP) number are accepted as a match.
+:eparml.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter ASPDEV
+.*******************************************
+:help name='UTRTVSPLFA/ASPDEV'.
+ASP device (ASPDEV) - Help
+:xh3.ASP device (ASPDEV)
+:p.Specifies the Auxiliary Storage Pool Device as additional criteria
+for opening and reading from a selection list of matching spooled
+file entries.  This parameter is only valid if the ASP number (ASP)
+element of the SELECT parameter is *ASPDEV.
+:parml.
+:pt.:pk def.*:epk.
+:pd.
+Files which are found in the ASPs that are currently part of the
+thread's library name space are selected.  This includes the system
+ASP (ASP 1), all defined basic user ASPs (ASPs 2-32), and if the
+thread has an ASP group, the primary and secondary ASPs in the
+thread's ASP group.
+:pt.:pk.*SYSBAS:epk.
+:pd.
+Files which are found in the system ASP (ASP 1) and all defined
+basic user ASPs (ASPs 2-32) are selected.
+:pt.:pk.*CURASPGRP:epk.
+:pd.
+Files which are found in the primary and secondary ASPs in the
+thread's ASP group are selected.  If no ASP group is associated with
+the thread, an error will be issued.
+:pt.:pv.name:epv.
+:pd.
+Specify the name of the auxiliary storage pool device description.
+Files which are found in the specified primary or secondary ASP are
+selected. Only primary or secondary ASPs which are in the thread's
+ASP group may be specified.  If no ASP group is associated with the
+thread, an error will be issued.
+:eparml.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter FILENAME
+.*******************************************
+:help name='UTRTVSPLFA/FILENAME'.
+Spooled file name         (10) (FILENAME) - Help
+:xh3.Spooled file name         (10) (FILENAME)
+:p.Specifies the name of the CL variable that receives the spooled
+file name for the selected list entry.  The variable must be a
+character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter FILENBR
+.*******************************************
+:help name='UTRTVSPLFA/FILENBR'.
+Spooled file number      (6,0) (FILENBR) - Help
+:xh3.Spooled file number      (6,0) (FILENBR)
+:p.Specifies the name of the CL variable that receives the spooled
+file number for the selected list entry.  The variable must be a
+numeric variable with a length of 6 digits and 0 decimals.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter JOBNAME
+.*******************************************
+:help name='UTRTVSPLFA/JOBNAME'.
+Job name                  (10) (JOBNAME) - Help
+:xh3.Job name                  (10) (JOBNAME)
+:p.Specifies the name of the CL variable that receives the associated
+job name for the selected list entry.  The variable must be a
+character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter JOBUSER
+.*******************************************
+:help name='UTRTVSPLFA/JOBUSER'.
+Job user                  (10) (JOBUSER) - Help
+:xh3.Job user                  (10) (JOBUSER)
+:p.Specifies the name of the CL variable that receives the associated
+job user for the selected list entry.  The variable must be a
+character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter JOBNBR
+.*******************************************
+:help name='UTRTVSPLFA/JOBNBR'.
+Job number                 (6) (JOBNBR) - Help
+:xh3.Job number                 (6) (JOBNBR)
+:p.Specifies the name of the CL variable that receives the associated
+job number for the selected list entry.  The variable must be a
+character variable with a minimum length of 6 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter OUTQUENM
+.*******************************************
+:help name='UTRTVSPLFA/OUTQUENM'.
+Output queue name         (10) (OUTQUENM) - Help
+:xh3.Output queue name         (10) (OUTQUENM)
+:p.Specifies the name of the CL variable that receives the associated
+output queue name for the selected list entry.  The variable must be
+a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter OUTQUELB
+.*******************************************
+:help name='UTRTVSPLFA/OUTQUELB'.
+Output queue library      (10) (OUTQUELB) - Help
+:xh3.Output queue library      (10) (OUTQUELB)
+:p.Specifies the name of the CL variable that receives the associated
+output queue library for the selected list entry.  The variable must be
+a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter DEVICE
+.*******************************************
+:help name='UTRTVSPLFA/DEVICE'.
+Device                    (10) (DEVICE) - Help
+:xh3.Device                    (10) (DEVICE)
+:p.Specifies the name of the CL variable that receives the associated
+print device name for the selected list entry.  The variable must be
+a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter DEVTYPE
+.*******************************************
+:help name='UTRTVSPLFA/DEVTYPE'.
+Device type               (10) (DEVTYPE) - Help
+:xh3.Device type               (10) (DEVTYPE)
+:p.Specifies the name of the CL variable that receives the associated
+print device type for the selected list entry.  The variable must be
+a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter FORMTYPE
+.*******************************************
+:help name='UTRTVSPLFA/FORMTYPE'.
+Form type                 (10) (FORMTYPE) - Help
+:xh3.Form type                 (10) (FORMTYPE)
+:p.Specifies the name of the CL variable that receives the associated
+form type for the selected list entry.  The variable must be
+a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter USERDATA
+.*******************************************
+:help name='UTRTVSPLFA/USERDATA'.
+User data                 (10) (USERDATA) - Help
+:xh3.User data                 (10) (USERDATA)
+:p.Specifies the name of the CL variable that receives the associated
+user data tag for the selected list entry.  The variable must be
+a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter STATUS
+.*******************************************
+:help name='UTRTVSPLFA/STATUS'.
+Status                    (10) (STATUS) - Help
+:xh3.Status                    (10) (STATUS)
+:p.Specifies the name of the CL variable that receives the associated
+printing status for the selected list entry.  The variable must be
+a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter PRIORITY
+.*******************************************
+:help name='UTRTVSPLFA/PRIORITY'.
+Priority                   (2) (PRIORITY) - Help
+:xh3.Priority                   (2) (PRIORITY)
+:p.Specifies the name of the CL variable that receives the associated
+printing priority for the selected list entry.  The variable must be
+a character variable with a minimum length of 2 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter CREATED
+.*******************************************
+:help name='UTRTVSPLFA/CREATED'.
+Created date (YYYYMMDD)    (8) (CREATED) - Help
+:xh3.Created date (YYYYMMDD)    (8) (CREATED)
+:p.Specifies the name of the CL variable that receives the associated
+create (open) date for the selected list entry.  The variable must be
+a character variable with a minimum length of 8 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter CREATET
+.*******************************************
+:help name='UTRTVSPLFA/CREATET'.
+Created time (HHMMSS)      (6) (CREATET) - Help
+:xh3.Created time (HHMMSS)      (6) (CREATET)
+:p.Specifies the name of the CL variable that receives the associated
+create (open) time for the selected list entry.  The variable must be
+a character variable with a minimum length of 6 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter TOTPGS
+.*******************************************
+:help name='UTRTVSPLFA/TOTPGS'.
+Total pages              (9,0) (TOTPGS) - Help
+:xh3.Total pages              (9,0) (TOTPGS)
+:p.Specifies the name of the CL variable that receives the total
+number of pages for the selected list entry.  The variable must be a
+numeric variable with a length of 9 digits and 0 decimals.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter CURPGE
+.*******************************************
+:help name='UTRTVSPLFA/CURPGE'.
+Current page             (9,0) (CURPGE) - Help
+:xh3.Current page             (9,0) (CURPGE)
+:p.Specifies the name of the CL variable that receives the current
+page number for the selected list entry.  The variable must be a
+numeric variable with a length of 9 digits and 0 decimals.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter REMCPY
+.*******************************************
+:help name='UTRTVSPLFA/REMCPY'.
+Remaining copies         (3,0) (REMCPY) - Help
+:xh3.Remaining copies         (3,0) (REMCPY)
+:p.Specifies the name of the CL variable that receives the remaining
+number of copies for the selected list entry.  The variable must be a
+numeric variable with a length of 3 digits and 0 decimals.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter ASPNBR
+.*******************************************
+:help name='UTRTVSPLFA/ASPNBR'.
+ASP number               (3,0) (ASPNBR) - Help
+:xh3.ASP number               (3,0) (ASPNBR)
+:p.Specifies the name of the CL variable that receives the Auxiliary
+Storage Pool number for the selected list entry.  The variable must be
+a numeric variable with a length of 3 digits and 0 decimals.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter ASPDVN
+.*******************************************
+:help name='UTRTVSPLFA/ASPDVN'.
+ASP device name           (10) (ASPDVN) - Help
+:xh3.ASP device name           (10) (ASPDVN)
+:p.Specifies the name of the CL variable that receives the Auxiliary
+Storage Pool Device name for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter JOBSYSN
+.*******************************************
+:help name='UTRTVSPLFA/JOBSYSN'.
+Job system name           (10) (JOBSYSN) - Help
+:xh3.Job system name           (10) (JOBSYSN)
+:p.Specifies the name of the CL variable that receives the name of
+the system on which the selected list entry was created.  The variable
+must be a character variable with a minimum length of 8 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter FILESZ
+.*******************************************
+:help name='UTRTVSPLFA/FILESZ'.
+Spool file size (K)     (15,2) (FILESZ) - Help
+:xh3.Spool file size (K)     (15,2) (FILESZ)
+:p.Specifies the name of the CL variable that receives the total
+file size (in kilobytes) for the selected list entry.  The variable must
+be a numeric variable with a length of 15 digits and 2 decimals.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter AVAILABLE
+.*******************************************
+:help name='UTRTVSPLFA/AVAILABLE'.
+File available            (10) (AVAILABLE) - Help
+:xh3.File available            (10) (AVAILABLE)
+:p.Specifies the name of the CL variable that receives the associated
+availability flag for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter HOLD
+.*******************************************
+:help name='UTRTVSPLFA/HOLD'.
+Hold spooled file         (10) (HOLD) - Help
+:xh3.Hold spooled file         (10) (HOLD)
+:p.Specifies the name of the CL variable that receives the associated
+hold flag for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter SAVE
+.*******************************************
+:help name='UTRTVSPLFA/SAVE'.
+Save spooled file         (10) (SAVE) - Help
+:xh3.Save spooled file         (10) (SAVE)
+:p.Specifies the name of the CL variable that receives the associated
+save flag for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter RPLUNPRT
+.*******************************************
+:help name='UTRTVSPLFA/RPLUNPRT'.
+Replace unprintable char   (1) (RPLUNPRT) - Help
+:xh3.Replace unprintable char   (1) (RPLUNPRT)
+:p.Specifies the name of the CL variable that receives the indication
+whether unprintable character are replaced, or not, for the selected
+list entry.  The variable must be a character variable with a minimum
+length of 1 character.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter RPLCHAR
+.*******************************************
+:help name='UTRTVSPLFA/RPLCHAR'.
+Replacement character      (1) (RPLCHAR) - Help
+:xh3.Replacement character      (1) (RPLCHAR)
+:p.Specifies the name of the CL variable that receives the character to
+replace unprintable characters for the selected list entry.  The variable
+must be a character variable with a minimum length of 1 character.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter DEVLIB
+.*******************************************
+:help name='UTRTVSPLFA/DEVLIB'.
+Device library            (10) (DEVLIB) - Help
+:xh3.Device library            (10) (DEVLIB)
+:p.Specifies the name of the CL variable that receives the name of
+the device library for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter PGMNAME
+.*******************************************
+:help name='UTRTVSPLFA/PGMNAME'.
+Program created by        (10) (PGMNAME) - Help
+:xh3.Program created by        (10) (PGMNAME)
+:p.Specifies the name of the CL variable that receives the name of
+the program that created (opened) the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter PGMLIB
+.*******************************************
+:help name='UTRTVSPLFA/PGMLIB'.
+Program library           (10) (PGMLIB) - Help
+:xh3.Program library           (10) (PGMLIB)
+:p.Specifies the name of the CL variable that receives the name of the
+library for the program that created the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter FORMDEF
+.*******************************************
+:help name='UTRTVSPLFA/FORMDEF'.
+Form definition           (10) (FORMDEF) - Help
+:xh3.Form definition           (10) (FORMDEF)
+:p.Specifies the name of the CL variable that receives the name of
+the form definition for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter FORMDEFL
+.*******************************************
+:help name='UTRTVSPLFA/FORMDEFL'.
+Form definition library   (10) (FORMDEFL) - Help
+:xh3.Form definition library   (10) (FORMDEFL)
+:p.Specifies the name of the CL variable that receives the name of the
+library for the form definition for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter PAGEDEF
+.*******************************************
+:help name='UTRTVSPLFA/PAGEDEF'.
+Page definition           (10) (PAGEDEF) - Help
+:xh3.Page definition           (10) (PAGEDEF)
+:p.Specifies the name of the CL variable that receives the name of
+the page definition for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter PAGEDEFL
+.*******************************************
+:help name='UTRTVSPLFA/PAGEDEFL'.
+Page definition library   (10) (PAGEDEFL) - Help
+:xh3.Page definition library   (10) (PAGEDEFL)
+:p.Specifies the name of the CL variable that receives the name of the
+library for the page definition for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter ACGCDE
+.*******************************************
+:help name='UTRTVSPLFA/ACGCDE'.
+Accounting code           (15) (ACGCDE) - Help
+:xh3.Accounting code           (15) (ACGCDE)
+:p.Specifies the name of the CL variable that receives the
+accounting code for the selected list entry.  The variable
+must be a character variable with a minimum length of 15 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter PRTTXT
+.*******************************************
+:help name='UTRTVSPLFA/PRTTXT'.
+Print text                (30) (PRTTXT) - Help
+:xh3.Print text                (30) (PRTTXT)
+:p.Specifies the name of the CL variable that receives the
+print text for the selected list entry.  The variable
+must be a character variable with a minimum length of 30 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter MAXRECS
+.*******************************************
+:help name='UTRTVSPLFA/MAXRECS'.
+Maximum records          (9,0) (MAXRECS) - Help
+:xh3.Maximum records          (9,0) (MAXRECS)
+:p.Specifies the name of the CL variable that receives the maximum
+records for the selected list entry.  The variable must be a
+numeric variable with a length of 9 digits and 0 decimals.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter RECLEN
+.*******************************************
+:help name='UTRTVSPLFA/RECLEN'.
+Record length             (10) (RECLEN) - Help
+:xh3.Record length             (10) (RECLEN)
+:p.Specifies the name of the CL variable that receives the record length
+or special value *RCDFMT for the selected list entry.  The variable must
+be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter LPI
+.*******************************************
+:help name='UTRTVSPLFA/LPI'.
+Lines per inch           (5,1) (LPI) - Help
+:xh3.Lines per inch           (5,1) (LPI)
+:p.Specifies the name of the CL variable that receives the lines
+per inch value for the selected list entry.  The variable must be
+a numeric variable with a length of 5 digits and 1 decimal.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter CPI
+.*******************************************
+:help name='UTRTVSPLFA/CPI'.
+Characters per inch      (5,1) (CPI) - Help
+:xh3.Characters per inch      (5,1) (CPI)
+:p.Specifies the name of the CL variable that receives the characters
+per inch value for the selected list entry.  The variable must be
+a numeric variable with a length of 5 digits and 1 decimal.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter PAGELN
+.*******************************************
+:help name='UTRTVSPLFA/PAGELN'.
+Page length              (3,0) (PAGELN) - Help
+:xh3.Page length              (3,0) (PAGELN)
+:p.Specifies the name of the CL variable that receives the page length
+value (in lines per page) for the selected list entry.  The variable
+must be a numeric variable with a length of 3 digits and 0 decimals.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter PAGEWD
+.*******************************************
+:help name='UTRTVSPLFA/PAGEWD'.
+Page width               (3,0) (PAGEWD) - Help
+:xh3.Page width               (3,0) (PAGEWD)
+:p.Specifies the name of the CL variable that receives the page width
+value (in characters per line) for the selected list entry.  The variable
+must be a numeric variable with a length of 3 digits and 0 decimals.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter PAGEMM
+.*******************************************
+:help name='UTRTVSPLFA/PAGEMM'.
+Measurement method        (10) (PAGEMM) - Help
+:xh3.Measurement method        (10) (PAGEMM)
+:p.Specifies the name of the CL variable that receives the page
+measurement method for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter UOM
+.*******************************************
+:help name='UTRTVSPLFA/UOM'.
+Unit of measure           (10) (UOM) - Help
+:xh3.Unit of measure           (10) (UOM)
+:p.Specifies the name of the CL variable that receives the unit
+of measure for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter OVRFLW
+.*******************************************
+:help name='UTRTVSPLFA/OVRFLW'.
+Overflow line            (3,0) (OVRFLW) - Help
+:xh3.Overflow line            (3,0) (OVRFLW)
+:p.Specifies the name of the CL variable that receives the page
+overflow line for the selected list entry.  The variable must be
+a numeric variable with a length of 3 digits and 0 decimals.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter FILESEP
+.*******************************************
+:help name='UTRTVSPLFA/FILESEP'.
+Number of separators     (3,0) (FILESEP) - Help
+:xh3.Number of separators     (3,0) (FILESEP)
+:p.Specifies the name of the CL variable that receives the number
+of file separators for the selected list entry.  The variable must be
+a numeric variable with a length of 3 digits and 0 decimals.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter DRAWER
+.*******************************************
+:help name='UTRTVSPLFA/DRAWER'.
+Source drawer             (10) (DRAWER) - Help
+:xh3.Source drawer             (10) (DRAWER)
+:p.Specifies the name of the CL variable that receives the printer drawer
+number or special value *E1 or *FORMDF for the selected list entry.  The
+variable must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter PAGRTT
+.*******************************************
+:help name='UTRTVSPLFA/PAGRTT'.
+Page rotation             (10) (PAGRTT) - Help
+:xh3.Page rotation             (10) (PAGRTT)
+:p.Specifies the name of the CL variable that receives the page
+rotation value or special value *COR, *DEEVD, or *AUTO for the
+selected list entry.  The variable must be a character variable
+with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter JUSTIFY
+.*******************************************
+:help name='UTRTVSPLFA/JUSTIFY'.
+Hardware justification   (3,0) (JUSTIFY) - Help
+:xh3.Hardware justification   (3,0) (JUSTIFY)
+:p.Specifies the name of the CL variable that receives the printer
+justification value for the selected list entry.  The variable must
+be a numeric variable with a length of 3 digits and 0 decimals.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter FONTIDNT
+.*******************************************
+:help name='UTRTVSPLFA/FONTIDNT'.
+Font identifier           (10) (FONTIDNT) - Help
+:xh3.Font identifier           (10) (FONTIDNT)
+:p.Specifies the name of the CL variable that receives the font
+identifier for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter FONTSIZE
+.*******************************************
+:help name='UTRTVSPLFA/FONTSIZE'.
+Point size               (5,2) (FONTSIZE) - Help
+:xh3.Point size               (5,2) (FONTSIZE)
+:p.Specifies the name of the CL variable that receives the font
+point size value for the selected list entry.  The variable must
+be a numeric variable with a length of 5 digits and 2 decimals.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter CHARIDNT
+.*******************************************
+:help name='UTRTVSPLFA/CHARIDNT'.
+Character identifier      (10) (CHARIDNT) - Help
+:xh3.Character identifier      (10) (CHARIDNT)
+:p.Specifies the name of the CL variable that receives the character
+identifier for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter CODEPAGE
+.*******************************************
+:help name='UTRTVSPLFA/CODEPAGE'.
+Code page                 (10) (CODEPAGE) - Help
+:xh3.Code page                 (10) (CODEPAGE)
+:p.Specifies the name of the CL variable that receives the character
+code page value for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter DUPLEX
+.*******************************************
+:help name='UTRTVSPLFA/DUPLEX'.
+Print on both sides       (10) (DUPLEX) - Help
+:xh3.Print on both sides       (10) (DUPLEX)
+:p.Specifies the name of the CL variable that receives the indicator
+whether to print on both sides for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter FOLD
+.*******************************************
+:help name='UTRTVSPLFA/FOLD'.
+Fold records              (10) (FOLD) - Help
+:xh3.Fold records              (10) (FOLD)
+:p.Specifies the name of the CL variable that receives the indicator
+whether to fold print records for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter CTLCHAR
+.*******************************************
+:help name='UTRTVSPLFA/CTLCHAR'.
+Control character         (10) (CTLCHAR) - Help
+:xh3.Control character         (10) (CTLCHAR)
+:p.Specifies the name of the CL variable that receives the
+control character value for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter ALIGN
+.*******************************************
+:help name='UTRTVSPLFA/ALIGN'.
+Align page                (10) (ALIGN) - Help
+:xh3.Align page                (10) (ALIGN)
+:p.Specifies the name of the CL variable that receives the indicator
+whether to align print forms for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter FIDELITY
+.*******************************************
+:help name='UTRTVSPLFA/FIDELITY'.
+Fidelity                  (10) (FIDELITY) - Help
+:xh3.Fidelity                  (10) (FIDELITY)
+:p.Specifies the name of the CL variable that receives the print
+fidelity value for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter PRTQLTY
+.*******************************************
+:help name='UTRTVSPLFA/PRTQLTY'.
+Print quality             (10) (PRTQLTY) - Help
+:xh3.Print quality             (10) (PRTQLTY)
+:p.Specifies the name of the CL variable that receives the print
+quality value for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter FORMFEED
+.*******************************************
+:help name='UTRTVSPLFA/FORMFEED'.
+Form feed                 (10) (FORMFEED) - Help
+:xh3.Form feed                 (10) (FORMFEED)
+:p.Specifies the name of the CL variable that receives the indicator
+whether to use form feeds for the selected list entry.  The variable
+must be a character variable with a minimum length of 10 characters.
+:ehelp.
+
+.**************************************************
+.* Error messages for UTRTVSPLFA
+.**************************************************
+:help name='UTRTVSPLFA/ERROR/MESSAGES'.
+&msg(CPX0005,QCPFMSG). UTRTVSPLFA - Help
+:xh3.&msg(CPX0005,QCPFMSG). UTRTVSPLFA
+:p.:hp3.*ESCAPE &msg(CPX0006,QCPFMSG).:ehp3.
+:DL COMPACT.
+:DT.UTR9801
+:DD.&MSG(UTR9801,WSMSGF,*LIBL,nosub).
+:EDL.
+:ehelp.
+
+:epnlgrp.
+ 
