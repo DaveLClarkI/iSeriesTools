@@ -1,0 +1,572 @@
+.******************************************************************************
+.* Program Name:      FNDSRCMBR -- Find Source Member                         *
+.* Programmer:        Dave L Clark I                                          *
+.* Date:              June 17, 2016                                           *
+.* Project/Request #: JIRA IN-40 -- Create command to find source members     *
+.* Purpose:           This command searches the specified libraries for a     *
+.*                    matching source file and member name.  The resulting    *
+.*                    list displays in a subfile for option processing.       *
+.*----------------------------------------------------------------------------*
+.* Create as follows:                                                         *
+.*                                                                            *
+.*   CRTPNLGRP PNLGRP(*CURLIB/FNDSRCMBR) SRCFILE(*CURLIB/QPNLSRC)             *
+.*                                                                            *
+.*----------------------------------------------------------------------------*
+.* Modification Log:                                                          *
+.*                                                                            *
+.* Mod#    Date       User       Description                                  *
+.* ---- ---------- ---------- ----------------------------------------------- *
+.* M000                                                                       *
+.******************************************************************************
+:pnlgrp.
+
+.*=====================================================================
+.* Define data classes
+.*=====================================================================
+:class   name=BIN2      basetype='BIN 15'.
+:eclass.
+:class   name=OPTCLS    basetype='ACTION'.
+:eclass.
+:class   name=OBJCLS    basetype='OBJNAME 10'.
+:eclass.
+:class   name=OBJLIB    basetype='OBJNAME 10'.
+:tl.
+:ti      value='"*ALL"'.
+*ALL
+:ti      value='"*ALLUSR"'.
+*ALLUSR
+:ti      value='"*USRLIBL"'.
+*USRLIBL
+:ti      value='"*CURLIB"'.
+*CURLIB
+:etl.
+:eclass.
+:class   name=GENCLS    basetype='NAME 10 GENERIC'.
+:tl.
+:ti      value='"*"'.
+*
+:etl.
+:eclass.
+:class   name=INTCLS10  basetype='PACKED 10 0'.
+:eclass.
+:class   name=INTCLS15  basetype='PACKED 15 0'.
+:eclass.
+:class   name=DTETME    basetype='CHAR 19'.
+:eclass.
+:class   name=TXTCLS    basetype='CHAR 50'.
+:eclass.
+:class   name=PRMCLS    basetype='CHAR 255'.
+:eclass.
+
+.*============================~========================================
+.* Define data variables
+.*=====================================================================
+:var     name=PNLID     class=OBJCLS.
+:var     name=SRCF      class=OBJCLS.
+:var     name=LIBL      class=OBJLIB.
+:var     name=MEMB      class=GENCLS.
+:var     name=MBRVIEW   class=BIN2.
+
+:var     name=OPT       class=OPTCLS.
+:var     name=LIB       class=OBJCLS.
+:var     name=MBR       class=OBJCLS.
+:var     name=TYP       class=OBJCLS.
+:var     name=REC       class=INTCLS10.
+:var     name=SIZ       class=INTCLS15.
+:var     name=CRT       class=DTETME.
+:var     name=CHG       class=DTETME.
+:var     name=TXT       class=TXTCLS.
+
+:var     name=PRM       class=PRMCLS.
+
+.*====================================================================
+.* Define variable records and list definition
+.*====================================================================
+:varrcd  name=HEADER    vars='PNLID SRCF LIBL MEMB'.
+:varrcd  name=MEMBERS   vars='LIB MBR TYP TXT CRT CHG REC SIZ'.
+
+:listdef name=MBRLST    vars='OPT LIB MBR TYP TXT CRT CHG REC SIZ'.
+
+.*====================================================================
+.* Define conditions and truth tables
+.*====================================================================
+:cond    name=MBRVIEW1  expr='MBRVIEW=0'.
+:cond    name=MBRVIEW2  expr='MBRVIEW=1'.
+:cond    name=MBRVIEW3  expr='MBRVIEW=2'.
+:tt      name=MBRTT     conds='MBRVIEW1 MBRVIEW2 MBRVIEW3'.
+:ttrow   values='   1        0        0   '.
+:ttrow   values='   0        1        0   '.
+:ttrow   values='   0        0        1   '.
+:ett.
+
+.*=====================================================================
+.* Define the key list
+.*=====================================================================
+:keyl    name=KEYS      help=KLIST.
+:keyi    key=F1         help=HELP      action='HELP'.
+F1=Help
+:keyi    key=F3         help=EXIT      action='EXIT SET'   varupd=NO.
+F3=Exit
+:keyi    key=F4         help=PROMPT    action='PROMPT'.
+F4=Prompt
+:keyi    key=F5         help=REFRESH   action='RETURN 5'   varupd=NO.
+F5=Refresh
+:keyi    key=F9         help=RETRIEVE  action='RETRIEVE'.
+F9=Retrieve
+:keyi    key=F11        help=CHGVIEW   action='CHGVIEW'    cond=MBRVIEW1.
+F11=Member dates
+:keyi    key=F11        help=CHGVIEW   action='CHGVIEW'    cond=MBRVIEW2.
+F11=Member text
+:keyi    key=F11        help=CHGVIEW   action='CHGVIEW'    cond=MBRVIEW3.
+F11=Member size
+:keyi    key=F17        help=TOP       action='RETURN 2'.
+F17=Top of List
+:keyi    key=F18        help=BOTTOM    action='RETURN 3'.
+F18=End of List
+:keyi    key=F24        help=MOREKEYS  action='MOREKEYS'.
+F24=More keys
+:keyi    key=ENTER      help=ENTERKY   action='ENTER'.
+:keyi    key=HELP       help=HELPKY    action='HELP'.
+:keyi    key=PAGEUP     help=PAGEUPKY  action='PAGEUP'.
+:keyi    key=PAGEDOWN   help=PAGEDNKY  action='PAGEDOWN'.
+:keyi    key=PRINT      help=PRINTKY   action='PRINT'.
+:ekeyl.
+
+.*=====================================================================
+.* Define the panel
+.*=====================================================================
+:panel   name=WRKSRCM   help=MLIST     keyl=KEYS      enter='RETURN 1'
+         panelid=PNLID  depth=FIT      width=80       topsep=SYSNAM
+         tt=mbrtt.
+Work with Source Member
+
+:data    depth=4.
+:datacol width=20.
+:datacol width=12.
+:datacol width='*'.
+
+:datagrp grpsep=NONE    COMPACT.
+:datagrp grpsep=QINDENT COMPACT        help='FNDSRCMBR/SRCFILE'.
+:datai   var=SRCF       usage=INOUT.
+Source file
+:datac.Name
+:datai   var=LIBL       usage=INOUT.
+Library
+:datac.Name, *ALL, *ALLUSR, *USRLIBL, *CURLIB
+:edatagrp.
+:datai   var=MEMB       usage=INOUT    help='FNDSRCMBR/SRCMBR'.
+Source member
+:datac.Name, generic*, *
+:edatagrp.
+
+:edata.
+
+.*=====================================================================
+.* Define the List
+.*=====================================================================
+:list    actor=UIM      depth='*'      extact=NO      listdef=MBRLST
+         maxhead=1      maxactl=1      view=MBRVIEW   parms=PRM.
+
+:topinst.Type options, press Enter.
+
+.*---------------------------------------------------------------------
+.* Define the actions for each option in the list
+.*---------------------------------------------------------------------
+:listact option=1
+         enter='CMD ?CMPPFM ?*NEWFILE(&lib./&srcf.) ?*NEWMBR(&mbr.) &prm.'
+         prompt='CMD ?CMPPFM ?*NEWFILE(&lib./&srcf.) ?*NEWMBR(&mbr.) &prm.'
+         help='MLIST/OPT1'.
+1=Compare
+:listact option=2
+         enter='CMD ?CHGPFM ?*FILE(&lib./&srcf.) ?*MBR(&mbr.)'
+         enter=' ?-EXPDATE() ?-SHARE() ?-UNIT() &prm.'
+         prompt='CMD ?CHGPFM ?*FILE(&lib./&srcf.) ?*MBR(&mbr.) &prm.'
+         help='MLIST/OPT2'.
+2=Change
+:listact option=3
+         enter='CMD ?CPYF ?*FROMFILE(&lib./&srcf.) ?*FROMMBR(&mbr.)'
+         enter='          ??TOMBR(*FROMMBR) ??MBROPT(*REPLACE) &prm.'
+         prompt='CMD ?CPYF ?*FROMFILE(&lib./&srcf.) ?*FROMMBR(&mbr.)'
+         prompt='          ??TOMBR(*FROMMBR) ??MBROPT(*REPLACE) &prm.'
+         help='MLIST/OPT3'.
+3=Copy
+:listact option=4
+         enter='CMD ?RMVM ?*FILE(&lib./&srcf.) ?*MBR(&mbr.) &prm.'
+         prompt='CMD ?RMVM ?*FILE(&lib./&srcf.) ?*MBR(&mbr.) &prm.'
+         help='MLIST/OPT4'.
+4=Remove
+:listact option=5
+         enter='CMD DSPPFM FILE(&lib./&srcf.) MBR(&mbr.) &prm.'
+         prompt='CMD ?DSPPFM ?*FILE(&lib./&srcf.) ?*MBR(&mbr.) &prm.'
+         help='MLIST/OPT5'.
+5=Display
+:listact option=7
+         enter='CMD ?RNMM ?*FILE(&lib./&srcf.) ?*MBR(&mbr.) &prm.'
+         prompt='CMD ?RNMM ?*FILE(&lib./&srcf.) ?*MBR(&mbr.) &prm.'
+         help='MLIST/OPT7'.
+7=Rename
+
+.*---------------------------------------------------------------------
+.* Define the columns and headings in the list
+.*---------------------------------------------------------------------
+:listcol var=OPT        usage=INOUT    maxwidth=2     help='MLIST/OPTIONS'.
+Op
+:listcol var=LIB        usage=OUT      maxwidth=10    help='MLIST/LIB'.
+Library
+:listcol var=MBR        usage=OUT      maxwidth=10    help='MLIST/MBR'.
+Member
+:listcol var=TYP        usage=OUT      maxwidth=10    help='MLIST/TYP'.
+Type
+:listcol var=REC        usage=OUT      maxwidth=11    help='MLIST/REC'.
+Records
+:listcol var=SIZ        usage=OUT      maxwidth=16    help='MLIST/SIZ'.
+Size
+:listcol var=CRT        usage=OUT      maxwidth=19    help='MLIST/CRT'.
+Created
+:listcol var=CHG        usage=OUT      maxwidth=19    help='MLIST/CHG'.
+'Last source change'
+:listcol var=TXT        usage=OUT      maxwidth=50    help='MLIST/TXT'.
+Text
+
+.*---------------------------------------------------------------------
+.* Define the views in the list (toggle with F11)
+.*---------------------------------------------------------------------
+:listview cols='OPT LIB MBR TYP REC SIZ'.
+:listview cols='OPT LIB MBR CRT CHG'.
+:listview cols='OPT LIB MBR TXT'.
+
+:elist.
+
+.*---------------------------------------------------------------------
+.* include a command line that allows parameters for options
+.*---------------------------------------------------------------------
+:cmdline size=SHORT.Parameters or command
+
+.*=====================================================================
+.* End of panel
+.*=====================================================================
+:epanel.
+
+.*=====================================================================
+.*  Help for member list display
+.*=====================================================================
+:help    name=MLIST.
+Work with Source Member - Help
+:p.The Work with Source Member panel displays the libraries and member
+names that were found by the Find Source Member (FNDSRCMBR) command.
+:ehelp.
+
+.*---------------------------------------------------------------------
+:help    name='MLIST/OPTIONS'.
+Options - Help
+:xh3.Options
+:ehelp.
+
+:help    name='MLIST/OPT1'.
+:parml.
+:pt.1=Compare
+:pd.
+Compare a source member with an older member.
+:eparml.
+:ehelp.
+
+:help    name='MLIST/OPT2'.
+:parml.
+:pt.2=Change
+:pd.
+Change a source member's attributes.
+:eparml.
+:ehelp.
+
+:help    name='MLIST/OPT3'.
+:parml.
+:pt.3=Copy
+:pd.
+Copy a source member to a new member.
+:eparml.
+:ehelp.
+
+:help    name='MLIST/OPT4'.
+:parml.
+:pt.4=Remove
+:pd.
+Remove (delete) a source member from its source file.
+:eparml.
+:ehelp.
+
+:help    name='MLIST/OPT5'.
+:parml.
+:pt.5=Display
+:pd.
+Display the content of a source member.
+:eparml.
+:ehelp.
+
+:help    name='MLIST/OPT7'.
+:parml.
+:pt.7=Rename
+:pd.
+Rename a source member to a new member name.
+:eparml.
+:ehelp.
+
+.*---------------------------------------------------------------------
+:help    name='MLIST/LIB'.
+Library - Help
+:xh3.Library
+:p.This is the library in which the source member was found.
+:ehelp.
+
+.*---------------------------------------------------------------------
+:help    name='MLIST/MBR'.
+Member - Help
+:xh3.Member
+:p.This is the name of the source member found.
+:ehelp.
+
+.*---------------------------------------------------------------------
+:help    name='MLIST/TYP'.
+Type - Help
+:xh3.Type
+:p.This is the associated member source type.
+:ehelp.
+
+.*---------------------------------------------------------------------
+:help    name='MLIST/REC'.
+Records - Help
+:xh3.Records
+:p.This is the number of records in the source member.
+:ehelp.
+
+.*---------------------------------------------------------------------
+:help    name='MLIST/SIZ'.
+Size - Help
+:xh3.Size
+:p.This is the size (in bytes) of the source member.
+:ehelp.
+
+.*---------------------------------------------------------------------
+:help    name='MLIST/CRT'.
+Created - Help
+:xh3.Created
+:p.This is the date and time the source member was created.
+:ehelp.
+
+.*---------------------------------------------------------------------
+:help    name='MLIST/CHG'.
+Changed - Help
+:xh3.Changed
+:p.This is the date and time the source member was last changed.
+:ehelp.
+
+.*---------------------------------------------------------------------
+:help    name='MLIST/TXT'.
+Text - Help
+:xh3.Text
+:p.This is the associated source member's text description.
+:ehelp.
+
+.*---------------------------------------------------------------------
+:help    name=KLIST.
+Function Keys - Help
+:xh3.Function keys
+:ehelp.
+
+:help    name=HELP.
+:parml.
+:pt.F1=Help
+:pd.
+Provides additional information about using the display or a
+specific field on the display.
+:eparml.
+:ehelp.
+
+:help    name=EXIT.
+:parml.
+:pt.F3=Exit
+:pd.
+Ends the current task and returns to the display from which the
+task was started.
+:eparml.
+:ehelp.
+
+:help    name=PROMPT.
+:parml.
+:pt.F4=Prompt
+:pd.
+Provides assistance in typing additional parameter values for an
+option or in using a command.
+:eparml.
+:ehelp.
+
+:help    name=REFRESH.
+:parml.
+:pt.F5=Refresh
+:pd.
+Shows the display you are viewing with updated information.
+:eparml.
+:ehelp.
+
+:help    name=RETRIEVE.
+:parml.
+:pt.F9=Retrieve
+:pd.
+Displays the last command you entered on the command line and
+any parameters you included.  The first time this key is pressed, it
+shows the last command you ran.  The second time this key is pressed,
+it shows the command you ran before that -- and so on.
+:eparml.
+:ehelp.
+
+:help    name=CHGVIEW.
+:parml.
+:pt.F11=Alternate view
+:pd.
+Switches to an alternate view of the display.
+:eparml.
+:ehelp.
+
+:help    name=TOP.
+:parml.
+:pt.F17=Top of List
+:pd.
+Position to the first entry in the list.
+:eparml.
+:ehelp.
+
+:help    name=BOTTOM.
+:parml.
+:pt.F18=End of List
+:pd.
+Position to the last entry in the list.
+:eparml.
+:ehelp.
+
+:help    name=MOREKEYS.
+:parml.
+:pt.F24=More keys
+:pd.
+Shows additional function keys on the display.  The function keys
+can be used even when they are not shown on the display.
+:eparml.
+:ehelp.
+
+:help    name=ENTERKY.
+:parml.
+:pt.ENTER key
+:pd.
+Submits information on the display for processing.
+:eparml.
+:ehelp.
+
+:help    name=HELPKY.
+:parml.
+:pt.HELP key
+:pd.
+Provides additional information about using the display or a
+specific field on the display.
+:eparml.
+:ehelp.
+
+:help    name=PAGEDNKY.
+:parml.
+:pt.PageDown (RollUp) key
+:pd.
+Moves forward to show additional information for this display.  Page
+Down (Roll Up) shows the next group of items until you reach the end
+of the information.
+:eparml.
+:ehelp.
+
+:help    name=PAGEUPKY.
+:parml.
+:pt.PageUp (RollDown) key
+:pd.
+Moves backward to show additional information for this display.  Page
+Up (Roll Down) shows the previous group of items until you reach the
+beginning of the information.
+:eparml.
+:ehelp.
+
+:help    name=PRINTKY.
+:parml.
+:pt.PRINT key
+:pd.
+Prints information currently shown on the display.
+:eparml.
+:ehelp.
+
+.**********************************************************************
+.*  Help for command FNDSRCMBR
+.**********************************************************************
+:help name='FNDSRCMBR'.
+Find Source Member - Help
+:p.The Find Source Member (FNDSRCMBR) command searches the specified
+libraries for matching source file and member names.  The resulting
+list displays in a subfile for subsequent option processing.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter SRCMBR
+.*******************************************
+:help name='FNDSRCMBR/SRCMBR'.
+Source member (SRCMBR) - Help
+:xh3.Source member (SRCMBR)
+:p.This specifies the member name to search for in the specified
+source file(s).
+:p.This is a required parameter.
+:parml.
+:pt.:pv.name:epv.
+:pd.
+Specify the name of a specific source member to find.
+:pt.:pv.generic-name:epv.
+:pd.
+You may specify a generic source member name if you wish to find several
+members with the same prefix characters in their name.  To qualify as a
+generic name, the value specified must end with an asterisk.
+:pt.:pv.*:epv.
+:pd.
+Use this special value to match on all members in a source file.
+:eparml.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter SRCFILE
+.*******************************************
+:help name='FNDSRCMBR/SRCFILE'.
+Source file (SRCFILE) - Help
+:xh3.Source file (SRCFILE)
+:p.This specifies the source files to search for the specified
+member name(s).
+:p.:hp2.Qualifier 1: Source file:ehp2.
+:parml.
+:pt.:pv.name:epv.
+:pd.
+Specify the name of a specific source physical file to be searched.  The
+default is the QRPGLESRC file, but any source file name may be specified.
+:eparml.
+:p.:hp2.Qualifier 2: Library:ehp2.
+:parml.
+:pt.:pv.name:epv.
+:pd.
+Specify the name of the library to be searched.
+:pt.:pk def.*CURLIB:epk.
+:pd.
+The current library for the thread is searched.  If no library is
+specified as the current library for the thread, the QGPL library is
+searched.  This is the default.
+:pt.:pk.*ALL:epk.
+:pd.
+All libraries in the system, including QSYS, are searched.
+:pt.:pk.*ALLUSR:epk.
+:pd.
+All user libraries are searched.  This includes all libraries with
+names that do not begin with the letter Q (with some exceptions).
+:pt.:pk.*USRLIBL:epk.
+:pd.
+The current library entry (if any) and the libraries in the user
+portion of the library list are searched.
+:eparml.
+:ehelp.
+
+:epnlgrp. 

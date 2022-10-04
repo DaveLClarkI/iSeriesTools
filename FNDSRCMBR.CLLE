@@ -1,0 +1,443 @@
+/******************************************************************************/
+/* Program Name:      FNDSRCMBR -- Find Source Member                         */
+/* Programmer:        Dave L Clark I                                          */
+/* Date:              June 17, 2016                                           */
+/* Project/Request #: JIRA IN-40 -- Create command to find source members     */
+/* Purpose:           This command searches the specified libraries for a     */
+/*                    matching source file and member name.  The resulting    */
+/*                    list displays in a subfile for option processing.       */
+/*----------------------------------------------------------------------------*/
+/* Create as follows:                                                         */
+/*                                                                            */
+/*   CRTBNDCL PGM(*CURLIB/FNDSRCMBR) SRCFILE(*CURLIB/QCLSRC)                  */
+/*                                                                            */
+/*----------------------------------------------------------------------------*/
+/* Modification Log:                                                          */
+/*                                                                            */
+/* Mod#    Date       User       Description                                  */
+/* ---- ---------- ---------- ----------------------------------------------- */
+/* M000                                                                       */
+/******************************************************************************/
+ FNDSRCMBR:  PGM        PARM(&SRCMBR &SRCFILE)
+
+             DCLPRCOPT  TEXT('Find Source Member') +
+                          DFTACTGRP(*NO) ACTGRP(QILE)
+
+    /* parameter variables */
+             DCL        VAR(&SRCMBR)    TYPE(*CHAR) LEN(10)
+             DCL        VAR(&SRCFILE)   TYPE(*CHAR) LEN(20)
+             DCL        VAR(&SRCF)      TYPE(*CHAR) LEN(10) +
+                          STG(*DEFINED) DEFVAR(&SRCFILE 1)
+             DCL        VAR(&SRCLIB)    TYPE(*CHAR) LEN(10) +
+                          STG(*DEFINED) DEFVAR(&SRCFILE 11)
+
+    /* work variables */
+             DCL        VAR(&CONTINUE)  TYPE(*LGL)  LEN(1)   VALUE('1')
+             DCL        VAR(&EOFSRC)    TYPE(*LGL)  LEN(1)   VALUE('0')
+             DCL        VAR(&GOTMBR)    TYPE(*LGL)  LEN(1)   VALUE('0')
+             DCL        VAR(&INTERACT)  TYPE(*CHAR) LEN(1)
+             DCL        VAR(&FILEATRB)  TYPE(*CHAR) LEN(3)
+             DCL        VAR(&FILETYPE)  TYPE(*CHAR) LEN(5)
+             DCL        VAR(&MBROPT)    TYPE(*CHAR) LEN(5)
+             DCL        VAR(&TIME)      TYPE(*CHAR) LEN(8)
+             DCL        VAR(&DATE)      TYPE(*CHAR) LEN(10)
+             DCL        VAR(&MBRNAME)   TYPE(*CHAR) LEN(10)
+             DCL        VAR(&SRCTYPE)   TYPE(*CHAR) LEN(10)
+             DCL        VAR(&CRTDATE)   TYPE(*CHAR) LEN(19)
+             DCL        VAR(&CHGDATE)   TYPE(*CHAR) LEN(19)
+             DCL        VAR(&MBRTEXT)   TYPE(*CHAR) LEN(50)
+             DCL        VAR(&PFX)       TYPE(*DEC)  LEN(3 0)
+             DCL        VAR(&RCDCOUNT)  TYPE(*DEC)  LEN(10 0)
+             DCL        VAR(&DLTCOUNT)  TYPE(*DEC)  LEN(10 0)
+             DCL        VAR(&MBRSIZE)   TYPE(*DEC)  LEN(15 0)
+
+             DCL        VAR(&RCVR)      TYPE(*CHAR) LEN(400)
+             DCL        VAR(&RCVL)      TYPE(*INT)  LEN(4) VALUE(400)
+             DCL        VAR(&QOUT)      TYPE(*CHAR) LEN(20)
+             DCL        VAR(&QFNM)      TYPE(*CHAR) LEN(20)
+
+    /* bit testing */
+             DCL        VAR(&CHAR)      TYPE(*CHAR) LEN(1)
+             DCL        VAR(&BIT_2_ON)  TYPE(*LGL)  LEN(1)
+             DCL        VAR(&BIT_4_ON)  TYPE(*LGL)  LEN(1)
+             DCL        VAR(&BIT_POS)   TYPE(*INT)  LEN(4)
+
+    /* API variables */
+             DCL        VAR(&FULHLP)    TYPE(*CHAR) LEN(1)   VALUE('N')
+             DCL        VAR(&REDSPO)    TYPE(*CHAR) LEN(1)   VALUE('N')
+             DCL        VAR(&USRTSK)    TYPE(*CHAR) LEN(1)   VALUE('N')
+             DCL        VAR(&CSTKC)     TYPE(*INT)  LEN(4)   VALUE(0)
+             DCL        VAR(&CSTKQ)     TYPE(*CHAR) LEN(10)  VALUE('*CALLER')
+             DCL        VAR(&MSGKEY)    TYPE(*CHAR) LEN(4)
+             DCL        VAR(&CSROPT)    TYPE(*CHAR) LEN(1)   VALUE('D')
+             DCL        VAR(&LSTENT)    TYPE(*CHAR) LEN(4)   VALUE('NONE')
+             DCL        VAR(&ERRENT)    TYPE(*CHAR) LEN(4)   VALUE('NONE')
+             DCL        VAR(&WTIME)     TYPE(*INT)  LEN(4)   VALUE(-1)
+             DCL        VAR(&HANDLE)    TYPE(*CHAR) LEN(8)
+             DCL        VAR(&MBRLST)    TYPE(*CHAR) LEN(10)  VALUE('MBRLST')
+             DCL        VAR(&PNLGRP)    TYPE(*CHAR) LEN(20) +
+                          VALUE('FNDSRCMBR *LIBL')
+             DCL        VAR(&OPTION)    TYPE(*CHAR) LEN(4)
+             DCL        VAR(&APPSCP)    TYPE(*INT)  LEN(4)   VALUE(-1)
+             DCL        VAR(&EXTPRM)    TYPE(*INT)  LEN(4)
+             DCL        VAR(&ERRCOD)    TYPE(*INT)  LEN(4)   VALUE(0)
+             DCL        VAR(&FUNC)      TYPE(*INT)  LEN(4)   VALUE(5)
+             DCL        VAR(&LEHNDL)    TYPE(*INT)  LEN(4)
+
+  DCL VAR(&VARLEN) TYPE(*INT)  LEN(4)
+  /* this buffer performs double duty for both panel header and list detail */
+  DCL VAR(&VARBUF) TYPE(*CHAR) LEN(132)
+    DCL VAR(&VAR_SRCLIB) TYPE(*CHAR) LEN(10)  STG(*DEFINED) DEFVAR(&VARBUF 1)
+    DCL VAR(&VAR_SRCMBR) TYPE(*CHAR) LEN(10)  STG(*DEFINED) DEFVAR(&VARBUF 11)
+    DCL VAR(&VAR_MBRTYP) TYPE(*CHAR) LEN(10)  STG(*DEFINED) DEFVAR(&VARBUF 21)
+    DCL VAR(&VAR_MBRTXT) TYPE(*CHAR) LEN(50)  STG(*DEFINED) DEFVAR(&VARBUF 31)
+    DCL VAR(&VAR_CRTDAT) TYPE(*CHAR) LEN(19)  STG(*DEFINED) DEFVAR(&VARBUF 81)
+    DCL VAR(&VAR_CHGDAT) TYPE(*CHAR) LEN(19)  STG(*DEFINED) DEFVAR(&VARBUF 100)
+    DCL VAR(&VAR_RCDCNT) TYPE(*DEC) LEN(10 0) STG(*DEFINED) DEFVAR(&VARBUF 119)
+    DCL VAR(&VAR_MBRSIZ) TYPE(*DEC) LEN(15 0) STG(*DEFINED) DEFVAR(&VARBUF 125)
+
+    /* error handling variables */
+             DCL        VAR(&MSGID)     TYPE(*CHAR) LEN(7)
+             DCL        VAR(&MSGF)      TYPE(*CHAR) LEN(10)  VALUE('QCPFMSG')
+             DCL        VAR(&MSGLIB)    TYPE(*CHAR) LEN(10)  VALUE('*LIBL')
+             DCL        VAR(&MSGDATA)   TYPE(*CHAR) LEN(3000)
+
+  DCL VAR(&APIERRC) TYPE(*CHAR) LEN(3016)
+    DCL VAR(&API_BPROV) TYPE(*UINT)  LEN(4)   STG(*DEFINED) DEFVAR(&APIERRC 1)
+    DCL VAR(&API_BAVAIL) TYPE(*UINT) LEN(4)   STG(*DEFINED) DEFVAR(&APIERRC 5)
+    DCL VAR(&API_MSGID) TYPE(*CHAR)  LEN(7)   STG(*DEFINED) DEFVAR(&APIERRC 9)
+    DCL VAR(&API_RSRVD) TYPE(*CHAR)  LEN(1)   STG(*DEFINED) DEFVAR(&APIERRC 16)
+    DCL VAR(&API_MDATA) TYPE(*CHAR) LEN(3000) STG(*DEFINED) DEFVAR(&APIERRC 17)
+
+    /* work files */
+             DCLF       FILE(QAFDBASI) OPNID(SRC) ALWVARLEN(*YES)
+
+    /* ============================================================= */
+    /* =======================   S E T U P   ======================= */
+    /* ============================================================= */
+             OVRMSGF    MSGF(&MSGF) TOMSGF(&MSGLIB/&MSGF)
+
+             RTVJOBA    TYPE(&INTERACT)
+
+    /* verify source file attributes */
+             CALLSUBR   SUBR(VFY_SRCF)
+
+    /* ============================================================= */
+    /* ============   B E G I N   P R O C E S S I N G   ============ */
+    /* ============================================================= */
+
+    /* open the display application */
+             CALL       PGM(QUIOPNDA) PARM(&HANDLE &PNLGRP &APPSCP +
+                          &EXTPRM &FULHLP &ERRCOD)
+             MONMSG     MSGID(CPF0000 CPE0000 CPD0000) EXEC(GOTO +
+                          CMDLBL(ABORT))
+
+    /* put panel id and source file name on the screen */
+             CHGVAR     VAR(&VAR_SRCLIB) VALUE(&PNLGRP)
+             CHGVAR     VAR(&VAR_SRCMBR) VALUE(&SRCF)
+             CHGVAR     VAR(&VAR_MBRTYP) VALUE(&SRCLIB)
+             CHGVAR     VAR(&VAR_MBRTXT) VALUE(&SRCMBR)
+             CHGVAR     VAR(&VARLEN) VALUE(40)
+             CALL       PGM(QUIPUTV) PARM(&HANDLE &VARBUF &VARLEN +
+                          'HEADER' &ERRCOD)
+             MONMSG     MSGID(CPF0000 CPE0000 CPD0000) EXEC(GOTO +
+                          CMDLBL(ABORT))
+
+    /* loop on screen interactions */
+             DOWHILE    COND(&CONTINUE)
+
+                IF         COND(&FUNC *EQ 5) THEN(DO) /* (re)build list? */
+
+             /* retrieve available file descriptions */
+                   SNDPGMMSG  MSGID(CPF9897) MSGF(&MSGF) MSGDTA('Searching +
+                                for source files...') TOPGMQ(*EXT) +
+                                MSGTYPE(*STATUS)
+
+                /* special handling for *USRLIBL filter */
+                   IF         COND(&SRCLIB *EQ *USRLIBL) THEN(DO)
+                      CHGVAR     VAR(&SRCF) VALUE(&SRCF *TCAT '*')
+                   ENDDO
+
+                /* list matching files into an output file */
+                   DSPFD      FILE(&SRCLIB/&SRCF) TYPE(*BASATR) +
+                                OUTPUT(*OUTFILE) OUTFILE(QTEMP/SRCFLIST) +
+                                OUTMBR(*FIRST *REPLACE)
+                   MONMSG     MSGID(CPF0000 CPE0000 CPD0000) EXEC(GOTO +
+                                CMDLBL(ABORT))
+
+             /* override to the source file list */
+                   OVRDBF     FILE(QAFDBASI) TOFILE(QTEMP/SRCFLIST)
+                   CHGVAR     VAR(&EOFSRC) VALUE('0')
+
+             /* retrieve matching member descriptions */
+                   SNDPGMMSG  MSGID(CPF9897) MSGF(&MSGF) MSGDTA('Building +
+                                member list...') TOPGMQ(*EXT) +
+                                MSGTYPE(*STATUS)
+
+                   CHGVAR     VAR(&OPTION) VALUE('FRST')
+
+                /* build member list */
+                   DOWHILE (*NOT &EOFSRC)
+                      CALLSUBR   SUBR(GET_SRCF)
+                      IF         COND(*NOT &EOFSRC) THEN(DO)
+                         IF         COND(&SRCMBR *EQ '*') THEN(DO)
+                            CHGVAR     VAR(&MBRNAME) VALUE(*FIRSTMBR)
+                         ENDDO
+                         ELSE       CMD(DO)
+                            CHGVAR     VAR(&MBRNAME) VALUE(&SRCMBR)
+                         ENDDO
+                         CHGVAR     VAR(&MBROPT) VALUE(*SAME)
+                         CALLSUBR   SUBR(GET_MBRD)
+                         IF         COND(*NOT &GOTMBR) THEN(DO)
+                            ITERATE
+                         ENDDO
+                         CALLSUBR   SUBR(PUT_MBRD)
+                         CHGVAR     VAR(&MBROPT) VALUE(*NEXT)
+                         DOWHILE    COND(&MBRNAME *NE &SRCMBR)
+                            CALLSUBR   SUBR(GET_MBRD)
+                            IF         COND(&GOTMBR) THEN(DO)
+                               CALLSUBR   SUBR(PUT_MBRD)
+                            ENDDO
+                         ENDDO
+                      ENDDO
+                   ENDDO
+
+                   SNDPGMMSG  MSGID(CPF9897) MSGF(&MSGF) MSGDTA(' ') +
+                                TOPGMQ(*EXT) MSGTYPE(*STATUS)
+
+                ENDDO
+
+          /* display the panel */
+                CALL       PGM(QUIDSPP) PARM(&HANDLE &FUNC 'WRKSRCM' +
+                             &REDSPO &ERRCOD &USRTSK &CSTKC  &CSTKQ +
+                             &MSGKEY &CSROPT &LSTENT &ERRENT &WTIME)
+                MONMSG     MSGID(CPF0000 CPE0000 CPD0000) EXEC(GOTO +
+                             CMDLBL(ABORT))
+
+          /* user pressed F3=EXIT key? */
+                IF         COND(&FUNC *LT 0) THEN(DO)
+                   CHGVAR     VAR(&CONTINUE) VALUE('0')
+                ENDDO
+
+          /* user pressed ENTER key? */
+                IF         COND(&FUNC *EQ 1) THEN(DO)
+                   CHGVAR     VAR(&VARLEN) VALUE(40)
+                   CALL       PGM(QUIGETV) PARM(&HANDLE &VARBUF &VARLEN +
+                                'HEADER' &ERRCOD)
+                   MONMSG     MSGID(CPF0000 CPE0000 CPD0000) EXEC(GOTO +
+                                CMDLBL(ABORT))
+                   CHGVAR     VAR(&SRCF) VALUE(&VAR_SRCMBR)
+                   CHGVAR     VAR(&SRCLIB) VALUE(&VAR_MBRTYP)
+                   CHGVAR     VAR(&SRCMBR) VALUE(&VAR_MBRTXT)
+                   CALLSUBR   SUBR(VFY_SRCF)
+                   CHGVAR     VAR(&VAR_SRCMBR) VALUE(&SRCF)
+                   CHGVAR     VAR(&VAR_MBRTYP) VALUE(&SRCLIB)
+                   CHGVAR     VAR(&VAR_MBRTXT) VALUE(&SRCMBR)
+                   CHGVAR     VAR(&VARLEN) VALUE(40)
+                   CALL       PGM(QUIPUTV) PARM(&HANDLE &VARBUF &VARLEN +
+                                'HEADER' &ERRCOD)
+                   MONMSG     MSGID(CPF0000 CPE0000 CPD0000) EXEC(GOTO +
+                                CMDLBL(ABORT))
+                   CHGVAR     VAR(&FUNC) VALUE(5) /* do refresh */
+                ENDDO
+
+          /* user pressed F17=TOP key? */
+                IF         COND(&FUNC *EQ 2) THEN(DO)
+                   CALL       PGM(QUISETLA) PARM(&HANDLE &MBRLST 'SAME' +
+                                '*SAME' 'TOP' 'S' &ERRCOD)
+                   MONMSG     MSGID(CPF0000 CPE0000 CPD0000) EXEC(GOTO +
+                                CMDLBL(ABORT))
+                ENDDO
+
+          /* user pressed F18=BOTTOM key? */
+                IF         COND(&FUNC *EQ 3) THEN(DO)
+                   CALL       PGM(QUISETLA) PARM(&HANDLE &MBRLST 'SAME' +
+                                '*SAME' 'BOT' 'S' &ERRCOD)
+                   MONMSG     MSGID(CPF0000 CPE0000 CPD0000) EXEC(GOTO +
+                                CMDLBL(ABORT))
+                ENDDO
+
+          /* user requested a F5=REFRESH? */
+                IF         COND(&FUNC *EQ 5 +
+                           *AND &OPTION *NE 'FRST') THEN(DO)
+                /* delete subfile on refresh */
+                   CALL       PGM(QUIDLTL) PARM(&HANDLE &MBRLST &ERRCOD)
+                ENDDO
+
+          /* close the source file list and remove override */
+                CLOSE      OPNID(SRC)
+
+                DLTOVR     FILE(QAFDBASI)
+                MONMSG     MSGID(CPF9841) EXEC(DO)
+                   RCVMSG     MSGTYPE(*LAST) RMV(*YES)
+                ENDDO
+
+    /* loop on screen interactions */
+             ENDDO
+
+    /* close the display application */
+             CALL       PGM(QUICLOA) PARM(&HANDLE 'M' &ERRCOD)
+             MONMSG     MSGID(CPF0000 CPE0000 CPD0000) EXEC(GOTO +
+                          CMDLBL(ABORT))
+
+    /* ============================================================= */
+    /* ===========   E N D   O F   P R O C E S S I N G   =========== */
+    /* ============================================================= */
+             RETURN
+ ABORT:
+    /* if running interactively, relay message to line 24 of menu    */
+             IF         COND(&INTERACT *EQ '1') THEN(DO)
+                RCVMSG     MSGTYPE(*LAST) RMV(*NO) MSGDTA(&MSGDATA) +
+                             MSGID(&MSGID) MSGF(&MSGF) MSGFLIB(&MSGLIB)
+                SNDPGMMSG  MSGID(&MSGID) MSGF(&MSGLIB/&MSGF) +
+                             MSGDTA(&MSGDATA) TOPGMQ(*PRV) +
+                             MSGTYPE(*ESCAPE)
+             ENDDO
+    /* else...                                                       */
+             ELSE       CMD(DO)
+                CHGJOB     LOG(4 *SAME *SECLVL) /* print joblog */
+             ENDDO
+
+             RETURN
+
+    /* ============================================================= */
+    /* =============   G E T   S O U R C E   F I L E   ============= */
+    /* ============================================================= */
+ GET_SRCF:   SUBR       SUBR(GET_SRCF)
+                RCVF       OPNID(SRC)
+                MONMSG     MSGID(CPF0864) EXEC(DO)
+                   CHGVAR     VAR(&EOFSRC) VALUE('1')
+                ENDDO
+             ENDSUBR
+
+    /* ============================================================= */
+    /* ======   G E T   M E M B E R   D E S C R I P T I O N   ====== */
+    /* ============================================================= */
+ GET_MBRD:   SUBR       SUBR(GET_MBRD)
+                CHGVAR     VAR(&GOTMBR) VALUE('1')
+                RTVMBRD    FILE(&SRC_ATLIB/&SRC_ATFILE) MBR(&MBRNAME +
+                             &MBROPT) RTNMBR(&MBRNAME) SRCTYPE(&SRCTYPE) +
+                             SRCCHGDATE(&CHGDATE) CRTDATE(&CRTDATE) +
+                             TEXT(&MBRTEXT) NBRCURRCD(&RCDCOUNT) +
+                             NBRDLTRCD(&DLTCOUNT) DTASPCSIZ(&MBRSIZE)
+                /* end of member list? */
+                MONMSG     MSGID(CPF3018 CPF3019 CPF3049 CPF9815) EXEC(DO)
+                   RCVMSG     MSGTYPE(*LAST) RMV(*YES)
+                   CHGVAR     VAR(&MBRNAME) VALUE(&SRCMBR)
+                   CHGVAR     VAR(&GOTMBR) VALUE('0')
+                ENDDO
+                IF         COND(&GOTMBR +
+                           *AND &MBROPT *EQ '*NEXT') THEN(DO)
+                   /* end of generic member list? */
+                   IF         COND(&PFX *GT 0) THEN(DO)
+                      IF         COND(%SST(&SRCMBR 1 &PFX) +
+                                  *NE %SST(&MBRNAME 1 &PFX)) THEN(DO)
+                         CHGVAR     VAR(&MBRNAME) VALUE(&SRCMBR)
+                         CHGVAR     VAR(&GOTMBR) VALUE('0')
+                      ENDDO
+                   ENDDO
+                ENDDO
+             ENDSUBR
+
+    /* ============================================================= */
+    /* ======   P U T   M E M B E R   D E S C R I P T I O N   ====== */
+    /* ============================================================= */
+ PUT_MBRD:   SUBR       SUBR(PUT_MBRD)
+                CHGVAR     VAR(&VAR_SRCLIB) VALUE(&SRC_ATLIB)
+                CHGVAR     VAR(&VAR_SRCMBR) VALUE(&MBRNAME)
+                CHGVAR     VAR(&VAR_MBRTYP) VALUE(&SRCTYPE)
+                CHGVAR     VAR(&VAR_MBRTXT) VALUE(&MBRTEXT)
+
+                IF         COND(%SST(&CRTDATE 1 1) *EQ '0') THEN(DO)
+                   CHGVAR     VAR(&DATE) VALUE('19' || %SST(&CRTDATE 2 2) +
+                                 *CAT '/' *CAT %SST(&CRTDATE 4 2) +
+                                 *CAT '/' *CAT %SST(&CRTDATE 6 2))
+                ENDDO
+                ELSE       CMD(DO)
+                   CHGVAR     VAR(&DATE) VALUE('20' || %SST(&CRTDATE 2 2) +
+                                 *CAT '/' *CAT %SST(&CRTDATE 4 2) +
+                                 *CAT '/' *CAT %SST(&CRTDATE 6 2))
+                ENDDO
+                CHGVAR     VAR(&TIME) VALUE(%SST(&CRTDATE  8 2) +
+                              *CAT ':' *CAT %SST(&CRTDATE 10 2) +
+                              *CAT ':' *CAT %SST(&CRTDATE 12 2))
+                CHGVAR     VAR(&VAR_CRTDAT) VALUE(&DATE *BCAT &TIME)
+
+                IF         COND(%SST(&CHGDATE 1 1) *EQ '0') THEN(DO)
+                   CHGVAR     VAR(&DATE) VALUE('19' || %SST(&CHGDATE 2 2) +
+                                 *CAT '/' *CAT %SST(&CHGDATE 4 2) +
+                                 *CAT '/' *CAT %SST(&CHGDATE 6 2))
+                ENDDO
+                ELSE       CMD(DO)
+                   CHGVAR     VAR(&DATE) VALUE('20' || %SST(&CHGDATE 2 2) +
+                                 *CAT '/' *CAT %SST(&CHGDATE 4 2) +
+                                 *CAT '/' *CAT %SST(&CHGDATE 6 2))
+                ENDDO
+                CHGVAR     VAR(&TIME) VALUE(%SST(&CHGDATE  8 2) +
+                              *CAT ':' *CAT %SST(&CHGDATE 10 2) +
+                              *CAT ':' *CAT %SST(&CHGDATE 12 2))
+                CHGVAR     VAR(&VAR_CHGDAT) VALUE(&DATE *BCAT &TIME)
+
+                CHGVAR     VAR(&VAR_RCDCNT) VALUE(&RCDCOUNT)
+                CHGVAR     VAR(&VAR_MBRSIZ) VALUE(&MBRSIZE)
+
+                CHGVAR     VAR(&VARLEN) VALUE(132)
+                CALL       PGM(QUIADDLE) PARM(&HANDLE &VARBUF &VARLEN +
+                             'MEMBERS' &MBRLST &OPTION &LEHNDL &ERRCOD)
+                CHGVAR     VAR(&OPTION) VALUE('NEXT')
+             ENDSUBR
+
+    /* ============================================================= */
+    /* ==========   V E R I F Y   S O U R C E   F I L E   ========== */
+    /* ============================================================= */
+ VFY_SRCF:   SUBR       SUBR(VFY_SRCF) /* verify source file attributes */
+                CHGVAR     VAR(&QFNM) VALUE(&SRCF *CAT '*LIBL')
+                CHGVAR     VAR(&API_BPROV) VALUE(%LEN(&APIERRC))
+                CALL       PGM(QDBRTVFD) PARM(&RCVR &RCVL &QOUT +
+                             'FILD0100' &QFNM '*FIRST' '1' '*LCL' +
+                             '*INT' &APIERRC)
+                IF         COND(&API_BAVAIL *GT 0) THEN(DO)
+                   SNDPGMMSG  MSGID(&API_MSGID) MSGF(QCPFMSG) +
+                                MSGDTA(&API_MDATA) MSGTYPE(*ESCAPE)
+                ENDDO
+
+                CHGVAR     VAR(&CHAR) VALUE(%SST(&RCVR 9 1)) /* atrb byte */
+
+                CHGVAR     VAR(&BIT_POS) VALUE(2) /* test file atrb bit */
+                CALLPRC    PRC('_TSTBTS') PARM((&CHAR) (&BIT_POS *BYVAL)) +
+                             RTNVAL(&BIT_POS)
+                CHGVAR     VAR(&BIT_2_ON) VALUE(&BIT_POS *EQ 1)
+
+                CHGVAR     VAR(&BIT_POS) VALUE(4) /* test file type bit */
+                CALLPRC    PRC('_TSTBTS') PARM((&CHAR) (&BIT_POS *BYVAL)) +
+                             RTNVAL(&BIT_POS)
+                CHGVAR     VAR(&BIT_4_ON) VALUE(&BIT_POS *EQ 1)
+
+                IF         (&BIT_2_ON) +
+                              (CHGVAR &FILEATRB *LF)   /* on  = lf   */
+                ELSE       CMD(CHGVAR &FILEATRB *PF)   /* off = pf   */
+                IF         (&BIT_4_ON) +
+                              (CHGVAR &FILETYPE *SRC)  /* on  = src  */
+                ELSE       CMD(CHGVAR &FILETYPE *DATA) /* off = data */
+
+                IF         COND(&FILEATRB *NE '*PF' +
+                            *OR &FILETYPE *NE '*SRC') THEN(DO)
+                   SNDPGMMSG  MSGID(CPF9897) MSGF(&MSGF) MSGDTA('File is +
+                                not a physical source file.') +
+                                MSGTYPE(*ESCAPE)
+                ENDDO
+
+             /* set length of generic prefix */
+                CHGVAR     VAR(&PFX) VALUE(1)
+                DOWHILE    COND(%SST(&SRCMBR &PFX 1) *NE '*' +
+                           *AND &PFX *LT 10)
+                   CHGVAR     VAR(&PFX) VALUE(&PFX + 1)
+                ENDDO
+                IF         COND(%SST(&SRCMBR &PFX 1) *EQ '*') THEN(DO)
+                   CHGVAR     VAR(&PFX) VALUE(&PFX - 1)
+                ENDDO
+             ENDSUBR
+
+    /* ============================================================= */
+
+             ENDPGM 
