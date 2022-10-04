@@ -1,0 +1,156 @@
+.******************************************************************************/
+.* Program Name:      LOOKUPSQL -- SQL Lookup for CL/ILE with Returned Value  */
+.* Programmer:        Dave L Clark I                                          */
+.* Date:              February 16, 2018                                       */
+.* Project/Request #: IN-53 Create a Command to Return an SQL Value in CL Pgm */
+.* Purpose:           This command allows a CL/ILE program to pass the parts  */
+.*                    of an SQL statement to an RPG/ILE program for the       */
+.*                    purpose of getting back what is logically a one-column  */
+.*                    value but can actually be multiple concatenated columns */
+.*                    that were converted to character format, first.  The CL */
+.*                    program can then use %SST to split it apart and CHGVAR  */
+.*                    to convert character values back to decimal if needed.  */
+.*                    Note that, internally, only a single SQL row will be    */
+.*                    retrieved so the ORDER BY parameter could be important. */
+.******************************************************************************/
+.* Modification Log:                                                          */
+.*                                                                            */
+.* Mod#    Date       User       Description                                  */
+.* ---- ---------- ---------- ----------------------------------------------- */
+.* M000 03/08/2018 DLCLARK    Initial design.                                 */
+.******************************************************************************/
+:pnlgrp.
+
+.************************************************************************
+.*  Help for command LOOKUPSQL
+.************************************************************************
+:help name='LOOKUPSQL'.
+SQL Lookup with Returned Value - Help
+:p.The SQL Lookup with Returned Value (LOOKUPSQL) command provides a means,
+in a CL program, of obtaining a returned value from the execution of an SQL
+statement.  Sure, you could write your own one-off RPG program and call it
+to accomplish the same thing, but this command packages a generic means of
+obtaining almost any value via SQL that you might imagine -- and you didn't
+have to write it yourself.  You just have to use a little imagination when
+providing the parameters to this command.
+:p.:hp2.Restrictions::ehp2.
+:ul.
+:li.
+Must be executed from a CL/ILE program.  It cannot be executed from a command
+line or from an RPG program because a CL return variable is required for the
+returned value.
+:eul.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter RTNVAL
+.*******************************************
+:help name='LOOKUPSQL/RTNVAL'.
+Return value       (Char 510) (RTNVAL) - Help
+:xh3.Return value       (Char 510) (RTNVAL)
+:p.Specifies the name of a character variable to receive
+the returned value from your SQL statement that you provide.
+:p.This is a required parameter.
+:note.If the returned value will be a concatenation of more than one SQL
+column, then the return variable should represent the equivalent of an
+RPG/ILE data structure to make it easier to obtain the separate
+values.  The CL/ILE DCL command does support the STG(*DEFINED)
+parameter for this purpose.
+:ent.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter COLUMN
+.*******************************************
+:help name='LOOKUPSQL/COLUMN'.
+Retrieve column or expression (COLUMN) - Help
+:xh3.Retrieve column or expression (COLUMN)
+:p.Specifies a string expression of up to 510 characters that is used
+to form the SQL column list in a SELECT statement.  However, only a
+single column may be described -- either as a single function or column name;
+or as a complex string expression (i.e., using concatenation of two or more
+columns together).  A little imagination may be required when concatenating
+two or more columns together because the resulting value must be a character
+string and the calling CL program must be able to parse out the concatenated
+values.
+:p.This is a required parameter.
+:note.If you need to expand the input field to accept more data, type
+an ampersand, a space, and then press the ENTER key.
+:ent.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter TABLE
+.*******************************************
+:help name='LOOKUPSQL/TABLE'.
+Lookup table or expression (TABLE) - Help
+:xh3.Lookup table or expression (TABLE)
+:p.Specifies a string expression of up to 510 characters that is used
+to form the SQL FROM clause in a SELECT statement.  This can be specified
+either as a single table name (with or without a JOIN clause) or as a table
+expression.  In the first case correlation name(s) may be specified as
+needed.  In the second case, a table expression requires that it be enclosed
+in parentheses and have a correlation name specified.
+:p.This is a required parameter.
+:note.If you need to expand the input field to accept more data, type
+an ampersand, a space, and then press the ENTER key.
+:ent.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter WHERE
+.*******************************************
+:help name='LOOKUPSQL/WHERE'.
+SQL WHERE clause (WHERE) - Help
+:xh3.SQL WHERE clause (WHERE)
+:p.Optionally specifies a string expression of up to 510 characters that is
+used to form the SQL WHERE clause in a SELECT statement.  If specified,
+this can be anything that is valid in a WHERE clause.
+:note.If you need to expand the input field to accept more data, type
+an ampersand, a space, and then press the ENTER key.
+:ent.
+:parml.
+:pt.:pk def.*NONE:epk.
+:pd.
+Specify this keyword if no WHERE clause is required.  This is the default.
+:eparml.
+:ehelp.
+
+.*******************************************
+.*   Help for parameter ORDER
+.*******************************************
+:help name='LOOKUPSQL/ORDER'.
+SQL ORDER BY clause (ORDER) - Help
+:xh3.SQL ORDER BY clause (ORDER)
+:p.Optionally specifies a string expression of up to 510 characters that is
+used to form the SQL ORDER BY clause in a SELECT statement.  If specified,
+this can be anything that is valid in an ORDER BY clause.
+:note.Since (internally) only a single SQL row is retrieved, the ORDER BY
+clause can be important.  Otherwise, if you need to expand the input field to
+accept more data, type an ampersand, a space, and then press the ENTER key.
+:ent.
+:parml.
+:pt.:pk def.*NONE:epk.
+:pd.
+Specify this keyword if no ORDER BY clause is required.  This is the default.
+:eparml.
+:ehelp.
+
+.**************************************************
+.* Error messages for LOOKUPSQL
+.**************************************************
+:help name='LOOKUPSQL/ERROR/MESSAGES'.
+&MSG(CPX0005,QCPFMSG). LOOKUPSQL - Help
+:xh3.&MSG(CPX0005,QCPFMSG). LOOKUPSQL
+:p.:hp3.*ESCAPE &MSG(CPX0006,QCPFMSG).:ehp3.
+:DL COMPACT.
+:DT.ACL0006
+:DD.&MSG(ACL0006,WSMSGF,SHR460,nosub).
+:DT.SQL0003
+:DD.&MSG(SQL0003,WSMSGF,SHR460,nosub).
+:DT.SQL0014
+:DD.&MSG(SQL0014,WSMSGF,SHR460,nosub).
+:EDL.
+:ehelp.
+
+:epnlgrp. 
