@@ -1,0 +1,163 @@
+000100000000.******************************************************************************/
+000200000000.* Program Name:      ADDJBCTLDF -- Add Job Control Defaults - Help           */
+000300000000.* Programmer:        Dave L Clark I                                          */
+000400000000.* Date:              November 8, 2018                                        */
+000500000000.* Project/Request #: IN-58 Create Commands to Maintain Job Control Defaults  */
+000600000000.* Purpose:           This command allows Job Control Defaults (AC29) to be   */
+000700000000.*                    added.                                                  */
+000800000000.******************************************************************************/
+000900000000.* Modification Log:                                                          */
+001000000000.*                                                                            */
+001100000000.* Mod#    Date       User       Description                                  */
+001200000000.* ---- ---------- ---------- ----------------------------------------------- */
+001300000000.* M000 11/08/2018 DLCLARK    Initial design.                                 */
+001400000000.******************************************************************************/
+001500000000:pnlgrp.
+001600000000:import name='*' pnlgrp='WRKJBCTLDF'.
+001700000000
+001800000000.************************************************************************
+001900000000.*  Help for command ADDJBCTLDF
+002000000000.************************************************************************
+002100000000:help name='ADDJBCTLDF'.
+002200000000Add Job Control Defaults - Help
+002300000000:xh3.10. Add Job Control Defaults
+002400000000:p.The Add Job Control Defaults (ADDJBCTLDF) command allows values for
+002500000000Job Control Option Defaults to be added to the REV460/AC29
+002600000000file.  These values are used the first time a job control options and
+002700000000constants record is created at execution time for the associated job.
+002800000000:ehelp.
+002900000000
+003000000000.*******************************************
+003100000000.*   Help for parameter JOB
+003200000000.*******************************************
+003300000000:help name='ADDJBCTLDF/JOB'.
+003400000000:imhelp name='WRKJBCTLDF/JOB'.
+003500000000:ehelp.
+003600000000
+003700000000.*******************************************
+003800000000.*   Help for parameter TITLE
+003900000000.*******************************************
+004000000000:help name='ADDJBCTLDF/TITLE'.
+004100000000:imhelp name='WRKJBCTLDF/TITLE'.
+004200000000:ehelp.
+004300000000
+004400000000.*******************************************
+004500000000.*   Help for parameter PROC
+004600000000.*******************************************
+004700000000:help name='ADDJBCTLDF/PROC'.
+004800000000:imhelp name='WRKJBCTLDF/PROC'.
+004900000000:ehelp.
+005000000000
+005100000000.*******************************************
+005200000000.*   Help for parameter DATE1
+005300000000.*******************************************
+005400000000:help name='ADDJBCTLDF/DATE1'.
+005500000000:imhelp name='WRKJBCTLDF/DATE1'.
+005600000000:ehelp.
+005700000000
+005800000000.*******************************************
+005900000000.*   Help for parameter DATE2
+006000000000.*******************************************
+006100000000:help name='ADDJBCTLDF/DATE2'.
+006200000000:imhelp name='WRKJBCTLDF/DATE2'.
+006300000000:ehelp.
+006400000000
+006500000000.*******************************************
+006600000000.*   Help for parameter SELOPT
+006700000000.*******************************************
+006800000000:help name='ADDJBCTLDF/SELOPT'.
+006900000000:imhelp name='WRKJBCTLDF/SELOPT'.
+007000000000:ehelp.
+007100000000
+007200000000.*******************************************
+007300000000.*   Help for parameter OPTION1
+007400000000.*******************************************
+007500000000:help name='ADDJBCTLDF/OPTION1'.
+007600000000:imhelp name='WRKJBCTLDF/OPTION1'.
+007700000000:ehelp.
+007800000000
+007900000000.*******************************************
+008000000000.*   Help for parameter OPTION2
+008100000000.*******************************************
+008200000000:help name='ADDJBCTLDF/OPTION2'.
+008300000000:imhelp name='WRKJBCTLDF/OPTION2'.
+008400000000:ehelp.
+008500000000
+008600000000.*******************************************
+008700000000.*   Help for parameter OPTION3
+008800000000.*******************************************
+008900000000:help name='ADDJBCTLDF/OPTION3'.
+009000000000:imhelp name='WRKJBCTLDF/OPTION3'.
+009100000000:ehelp.
+009200000000
+009300000000.*******************************************
+009400000000.*   Help for parameter OPTION4
+009500000000.*******************************************
+009600000000:help name='ADDJBCTLDF/OPTION4'.
+009700000000:imhelp name='WRKJBCTLDF/OPTION4'.
+009800000000:ehelp.
+009900000000
+010000000000.*******************************************
+010100000000.*   Help for parameter OPTION5
+010200000000.*******************************************
+010300000000:help name='ADDJBCTLDF/OPTION5'.
+010400000000:imhelp name='WRKJBCTLDF/OPTION5'.
+010500000000:ehelp.
+010600000000
+010700000000.*******************************************
+010800000000.*   Help for parameter LOCSEL
+010900000000.*******************************************
+011000000000:help name='ADDJBCTLDF/LOCSEL'.
+011100000000:imhelp name='WRKJBCTLDF/LOCSEL'.
+011200000000:ehelp.
+011300000000
+011400000000.*******************************************
+011500000000.*   Help for parameter ISSUE
+011600000000.*******************************************
+011700000000:help name='ADDJBCTLDF/ISSUE'.
+011800000000:imhelp name='WRKJBCTLDF/ISSUE'.
+011900000000:ehelp.
+012000000000
+012100000000.*******************************************
+012200000000.*   Help for parameter USEOPT1
+012300000000.*******************************************
+012400000000:help name='ADDJBCTLDF/USEOPT1'.
+012500000000:imhelp name='WRKJBCTLDF/USEOPT1'.
+012600000000:ehelp.
+012700000000
+012800000000.*******************************************
+012900000000.*   Help for parameter USEOPT2
+013000000000.*******************************************
+013100000000:help name='ADDJBCTLDF/USEOPT2'.
+013200000000:imhelp name='WRKJBCTLDF/USEOPT2'.
+013300000000:ehelp.
+013400000000
+013500000000.*******************************************
+013600000000.*   Help for parameter USEOPT3
+013700000000.*******************************************
+013800000000:help name='ADDJBCTLDF/USEOPT3'.
+013900000000:imhelp name='WRKJBCTLDF/USEOPT3'.
+014000000000:ehelp.
+014100000000
+014200000000.*******************************************
+014300000000.*   Help for parameter USEOPT4
+014400000000.*******************************************
+014500000000:help name='ADDJBCTLDF/USEOPT4'.
+014600000000:imhelp name='WRKJBCTLDF/USEOPT4'.
+014700000000:ehelp.
+014800000000
+014900000000.*******************************************
+015000000000.*   Help for parameter USEOPTN
+015100000000.*******************************************
+015200000000:help name='ADDJBCTLDF/USEOPTN'.
+015300000000:imhelp name='WRKJBCTLDF/USEOPTN'.
+015400000000:ehelp.
+015500000000
+015600000000.*******************************************
+015700000000.*   Help for parameter USRPWD
+015800000000.*******************************************
+015900000000:help name='ADDJBCTLDF/USRPWD'.
+016000000000:imhelp name='WRKJBCTLDF/USRPWD'.
+016100000000:ehelp.
+016200000000
+016300000000:epnlgrp.

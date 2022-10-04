@@ -1,0 +1,44 @@
+000100000000.******************************************************************************/
+000200000000.* Program Name:      DSPJBCTLOP -- Display Job Control Options - Help        */
+000300000000.* Programmer:        Dave L Clark I                                          */
+000400000000.* Date:              November 8, 2018                                        */
+000500000000.* Project/Request #: IN-57 Create Commands to Maintain Job Control Options   */
+000600000000.* Purpose:           This command allows Job Control Options (AC04) to be    */
+000700000000.*                    displayed.                                              */
+000800000000.******************************************************************************/
+000900000000.* Modification Log:                                                          */
+001000000000.*                                                                            */
+001100000000.* Mod#    Date       User       Description                                  */
+001200000000.* ---- ---------- ---------- ----------------------------------------------- */
+001300000000.* M000 11/08/2018 DLCLARK    Initial design.                                 */
+001400000000.******************************************************************************/
+001500000000:pnlgrp.
+001600000000:import name='*' pnlgrp='WRKJBCTLOP'.
+001700000000
+001800000000.************************************************************************
+001900000000.*  Help for command DSPJBCTLOP
+002000000000.************************************************************************
+002100000000:help name='DSPJBCTLOP'.
+002200000000Display Job Control Options - Help
+002300000000:xh3.8. Display Job Control Options
+002400000000:p.The Display Job Control Options (DSPJBCTLOP) command allows text for
+002500000000Job Control Options and Constants to be displayed from the REV460/AC04
+002600000000file.  This display is the same as it would be seen at execution time
+002700000000of the associated job.
+002800000000:ehelp.
+002900000000
+003000000000.*******************************************
+003100000000.*   Help for parameter JOB
+003200000000.*******************************************
+003300000000:help name='DSPJBCTLOP/JOB'.
+003400000000:imhelp name='WRKJBCTLOP/JOB'.
+003500000000:ehelp.
+003600000000
+003700000000.*******************************************
+003800000000.*   Help for parameter TITLE
+003900000000.*******************************************
+004000000000:help name='DSPJBCTLOP/TITLE'.
+004100000000:imhelp name='WRKJBCTLOP/TITLE'.
+004200000000:ehelp.
+004300000000
+004400000000:epnlgrp.

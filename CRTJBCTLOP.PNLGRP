@@ -1,0 +1,118 @@
+000100000000.******************************************************************************/
+000200000000.* Program Name:      CRTJBCTLOP -- Create Job Control Options - Help         */
+000300000000.* Programmer:        Dave L Clark I                                          */
+000400000000.* Date:              November 8, 2018                                        */
+000500000000.* Project/Request #: IN-57 Create Commands to Maintain Job Control Options   */
+000600000000.* Purpose:           This command allows Job Control Options (AC04) to be    */
+000700000000.*                    created.                                                */
+000800000000.******************************************************************************/
+000900000000.* Modification Log:                                                          */
+001000000000.*                                                                            */
+001100000000.* Mod#    Date       User       Description                                  */
+001200000000.* ---- ---------- ---------- ----------------------------------------------- */
+001300000000.* M000 11/08/2018 DLCLARK    Initial design.                                 */
+001400000000.******************************************************************************/
+001500000000:pnlgrp.
+001600000000:import name='*' pnlgrp='WRKJBCTLOP'.
+001700000000
+001800000000.************************************************************************
+001900000000.*  Help for command CRTJBCTLOP
+002000000000.************************************************************************
+002100000000:help name='CRTJBCTLOP'.
+002200000000Create Job Control Options - Help
+002300000000:xh3.6. Create Job Control Options
+002400000000:p.The Create Job Control Options (CRTJBCTLOP) command allows text for
+002500000000Job Control Options and Constants to be created in the REV460/AC04
+002600000000file.  This text determines which options and constants parameters
+002700000000will be prompted for at execution time of the associated job.
+002800000000:p.This command performs an "ADD" operation if the specified job name
+002900000000does not exist in the Job Control Options and Constants file.  A
+003000000000"CHANGE" operation is performed if the specified job name already
+003100000000exists in the Job Control Options and Constants file.  This single
+003200000000command format means that it is ideally suited for use with a Change
+003300000000Management system.
+003400000000:note.This command internally supports automatic word-wrap of prompt
+003500000000text and special indentation and highlighting formatting to make
+003600000000entry easier and the prompt display nicer.  See those parameters for
+003700000000more information.
+003800000000:ent.
+003900000000:ehelp.
+004000000000
+004100000000.*******************************************
+004200000000.*   Help for parameter JOB
+004300000000.*******************************************
+004400000000:help name='CRTJBCTLOP/JOB'.
+004500000000:imhelp name='WRKJBCTLOP/JOB'.
+004600000000:ehelp.
+004700000000
+004800000000.*******************************************
+004900000000.*   Help for parameter TITLE
+005000000000.*******************************************
+005100000000:help name='CRTJBCTLOP/TITLE'.
+005200000000:imhelp name='WRKJBCTLOP/TITLE'.
+005300000000:ehelp.
+005400000000
+005500000000.*******************************************
+005600000000.*   Help for parameter DATE1
+005700000000.*******************************************
+005800000000:help name='CRTJBCTLOP/DATE1'.
+005900000000:imhelp name='WRKJBCTLOP/DATE1'.
+006000000000:ehelp.
+006100000000
+006200000000.*******************************************
+006300000000.*   Help for parameter DATE2
+006400000000.*******************************************
+006500000000:help name='CRTJBCTLOP/DATE2'.
+006600000000:imhelp name='WRKJBCTLOP/DATE2'.
+006700000000:ehelp.
+006800000000
+006900000000.*******************************************
+007000000000.*   Help for parameter SELOPT
+007100000000.*******************************************
+007200000000:help name='CRTJBCTLOP/SELOPT'.
+007300000000:imhelp name='WRKJBCTLOP/SELOPT'.
+007400000000:ehelp.
+007500000000
+007600000000.*******************************************
+007700000000.*   Help for parameter OPTION1
+007800000000.*******************************************
+007900000000:help name='CRTJBCTLOP/OPTION1'.
+008000000000:imhelp name='WRKJBCTLOP/OPTION1'.
+008100000000:ehelp.
+008200000000
+008300000000.*******************************************
+008400000000.*   Help for parameter OPTION2
+008500000000.*******************************************
+008600000000:help name='CRTJBCTLOP/OPTION2'.
+008700000000:imhelp name='WRKJBCTLOP/OPTION2'.
+008800000000:ehelp.
+008900000000
+009000000000.*******************************************
+009100000000.*   Help for parameter OPTION3
+009200000000.*******************************************
+009300000000:help name='CRTJBCTLOP/OPTION3'.
+009400000000:imhelp name='WRKJBCTLOP/OPTION3'.
+009500000000:ehelp.
+009600000000
+009700000000.*******************************************
+009800000000.*   Help for parameter OPTION4
+009900000000.*******************************************
+010000000000:help name='CRTJBCTLOP/OPTION4'.
+010100000000:imhelp name='WRKJBCTLOP/OPTION4'.
+010200000000:ehelp.
+010300000000
+010400000000.*******************************************
+010500000000.*   Help for parameter OPTION5
+010600000000.*******************************************
+010700000000:help name='CRTJBCTLOP/OPTION5'.
+010800000000:imhelp name='WRKJBCTLOP/OPTION5'.
+010900000000:ehelp.
+011000000000
+011100000000.*******************************************
+011200000000.*   Help for parameter LOCSEL
+011300000000.*******************************************
+011400000000:help name='CRTJBCTLOP/LOCSEL'.
+011500000000:imhelp name='WRKJBCTLOP/LOCSEL'.
+011600000000:ehelp.
+011700000000
+011800000000:epnlgrp.

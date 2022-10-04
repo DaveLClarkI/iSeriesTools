@@ -1,0 +1,657 @@
+000100000000.******************************************************************************/
+000200000000.* Program Name:      WRKJBCTLOP -- Work with Job Control Options - Help      */
+000300000000.* Programmer:        Dave L Clark I                                          */
+000400000000.* Date:              November 8, 2018                                        */
+000500000000.* Project/Request #: IN-57 Create Commands to Maintain Job Control Options   */
+000600000000.* Purpose:           This command allows Job Control Options (AC04) to be    */
+000700000000.*                    worked with in a list panel.                            */
+000800000000.******************************************************************************/
+000900000000.* Modification Log:                                                          */
+001000000000.*                                                                            */
+001100000000.* Mod#    Date       User       Description                                  */
+001200000000.* ---- ---------- ---------- ----------------------------------------------- */
+001300000000.* M000 11/08/2018 DLCLARK    Initial design.                                 */
+001400000000.******************************************************************************/
+001500000000:pnlgrp.
+001600000000
+001700000000:copyr.(c) Copyright Winsupply, Inc.
+001800000000
+001900000000.*=====================================================================
+002000000000.* Define data classes
+002100000000.*=====================================================================
+002200000000:class   name=BIN2      basetype='BIN 15'.
+002300000000:eclass.
+002400000000:class   name=OBJCLS    basetype='OBJNAME 10'.
+002500000000:eclass.
+002600000000:class   name=OPTCLS    basetype='ACTION'.
+002700000000:eclass.
+002800000000:class   name=CHAR1     basetype='CHAR 1'.
+002900000000:eclass.
+003000000000:class   name=CHAR6     basetype='CHAR 6'.
+003100000000:eclass.
+003200000000:class   name=CHAR18    basetype='CHAR 18'.
+003300000000:eclass.
+003400000000:class   name=CHAR20    basetype='CHAR 20'.
+003500000000:eclass.
+003600000000:class   name=CHAR25    basetype='CHAR 25'.
+003700000000:eclass.
+003800000000:class   name=PRMCLS    basetype='CHAR 255'.
+003900000000:eclass.
+004000000000
+004100000000.*============================~========================================
+004200000000.* Define data variables
+004300000000.*=====================================================================
+004400000000:var     name=ILEXPGM   class=CHAR20.
+004500000000:var     name=PNLID     class=OBJCLS.
+004600000000:var     name=JOBID     class=CHAR6.
+004700000000:var     name=OPTVIEW   class=BIN2.
+004800000000
+004900000000:var     name=OPT       class=OPTCLS.
+005000000000:var     name=STAT      class=CHAR1.
+005100000000:var     name=JOB       class=CHAR6.
+005200000000:var     name=TTL       class=CHAR25.
+005300000000:var     name=LOC       class=CHAR18.
+005400000000
+005500000000:var     name=PRM       class=PRMCLS.
+005600000000
+005700000000.*====================================================================
+005800000000.* Define variable records and list definition
+005900000000.*====================================================================
+006000000000:varrcd  name=VARPOOL   vars='OPTVIEW'.
+006100000000:varrcd  name=HEADER    vars='ILEXPGM PNLID JOBID'.
+006200000000:varrcd  name=JOBDTL    vars='OPT STAT JOB TTL LOC'.
+006300000000
+006400000000:listdef name=JOBLST    vars='OPT STAT JOB TTL LOC'.
+006500000000
+006600000000.*====================================================================
+006700000000.* Define conditions and truth tables
+006800000000.*====================================================================
+006900000000:cond    name=OPTVIEW0  expr='OPTVIEW=0'.
+007000000000:cond    name=OPTVIEW1  expr='OPTVIEW=1'.
+007100000000:tt      name=SHOWOPTS  conds='OPTVIEW0 OPTVIEW1'.
+007200000000:ttrow                 values='   1        0    '.
+007300000000:ttrow                 values='   0        1    '.
+007400000000:ett.
+007500000000
+007600000000.*=====================================================================
+007700000000.* Define the key list
+007800000000.*=====================================================================
+007900000000:keyl    name=KEYS      help=KLIST.
+008000000000
+008100000000:keyi    key=F1         help=HELP      action='HELP'.
+008200000000F1=Help
+008300000000:keyi    key=F3         help=EXIT      action='EXIT SET'   varupd=NO.
+008400000000F3=Exit
+008500000000:keyi    key=F4         help=PROMPT    action='PROMPT'.
+008600000000F4=Prompt
+008700000000:keyi    key=F5         help=REFRESH   action='RETURN 5'   varupd=NO.
+008800000000F5=Refresh
+008900000000:keyi    key=F9         help=RETRIEVE  action='RETRIEVE'.
+009000000000F9=Retrieve
+009100000000:keyi    key=F17        help=TOP       action='RETURN 2'.
+009200000000F17=Top of List
+009300000000:keyi    key=F18        help=BOTTOM    action='RETURN 3'.
+009400000000F18=End of List
+009500000000:keyi    key=F23        help=MOREOPTS  action='RETURN 4'.
+009600000000F23=More options
+009700000000:keyi    key=F24        help=MOREKEYS  action='MOREKEYS'.
+009800000000F24=More keys
+009900000000:keyi    key=ENTER      help=ENTERKY   action='ENTER'.
+010000000000:keyi    key=HELP       help=HELPKY    action='HELP'.
+010100000000:keyi    key=PAGEUP     help=PAGEUPKY  action='PAGEUP'.
+010200000000:keyi    key=PAGEDOWN   help=PAGEDNKY  action='PAGEDOWN'.
+010300000000:keyi    key=PRINT      help=PRINTKY   action='PRINT'.
+010400000000
+010500000000:ekeyl.
+010600000000
+010700000000.*=====================================================================
+010800000000.* Define the panel
+010900000000.*=====================================================================
+011000000000:panel   name=WRKJBCTL  help=JLIST     keyl=KEYS      enter='RETURN 1'
+011100000000         panelid=PNLID  depth=FIT      width=80       topsep=SYSNAM
+011200000000         tt=SHOWOPTS.
+011300000000Work with Job Control Options
+011400000000
+011500000000:data    depth=2 compact.
+011600000000:datacol width=17.
+011700000000:datacol width=6.
+011800000000:datacol width='*'.
+011900000000
+012000000000:datai   var=JOBID      usage=INOUT    help='JLIST/SKIPTO'.
+012100000000Position to
+012200000000
+012300000000:edata.
+012400000000
+012500000000.*=====================================================================
+012600000000.* Define the List
+012700000000.*=====================================================================
+012800000000:list    actor=CALLER   depth='*'      extact=YES     listdef=JOBLST
+012900000000         maxhead=1      maxactl=1      parms=PRM.
+013000000000
+013100000000:topinst.Type options, press Enter.
+013200000000
+013300000000.*---------------------------------------------------------------------
+013400000000.* Define the actions for each option in the list
+013500000000.*---------------------------------------------------------------------
+013600000000:listact option=1       actfor=EXTACTE help='JLIST/OPT1'   cond=OPTVIEW0.
+0137000000001=Add
+013800000000:listact option=1       actfor=EXTACTE help='JLIST/OPT1'   cond=OPTVIEW1.
+013900000000:listact option=2       actfor=LISTE   help='JLIST/OPT2'   cond=OPTVIEW0.
+0140000000002=Change
+014100000000:listact option=2       actfor=LISTE   help='JLIST/OPT2'   cond=OPTVIEW1.
+014200000000 ... 2=Change
+014300000000:listact option=3       actfor=LISTE   help='JLIST/OPT3'.
+0144000000003=Copy
+014500000000:listact option=4       actfor=LISTE   help='JLIST/OPT4'.
+0146000000004=Delete
+014700000000:listact option=5       actfor=LISTE   help='JLIST/OPT5'.
+0148000000005=Display
+014900000000:listact option=9       actfor=LISTE   help='JLIST/OPT9'   cond=OPTVIEW0.
+0150000000009=Replicate ...
+015100000000:listact option=9       actfor=LISTE   help='JLIST/OPT9'   cond=OPTVIEW1.
+0152000000009=Replicate
+015300000000:listact option=10      actfor=LISTE   help='JLIST/OPT10'  cond=OPTVIEW0.
+015400000000:listact option=10      actfor=LISTE   help='JLIST/OPT10'  cond=OPTVIEW1.
+01550000000010=Defaults
+015600000000
+015700000000.*---------------------------------------------------------------------
+015800000000.* Define the columns and headings in the list
+015900000000.*---------------------------------------------------------------------
+016000000000:listcol var=OPT        maxwidth=2     usage=INOUT    extact=YES
+016100000000                                                      help='JLIST/OPTS'.
+016200000000Op
+016300000000:listcol var=STAT       maxwidth=6     usage=OUT      help='JLIST/STAT'.
+016400000000Status
+016500000000:listcol var=JOB        maxwidth=8     usage=OUT      extact=YES
+016600000000                                                      help='JLIST/JOB'.
+016700000000'Job name'
+016800000000:listcol var=TTL        maxwidth=25    usage=OUT      help='JLIST/TTL'.
+016900000000'Job title'
+017000000000:listcol var=LOC        maxwidth='*'   usage=OUT      help='JLIST/LOC'.
+017100000000'Location selection'
+017200000000
+017300000000:listview layout=1 cols='OPT STAT JOB TTL LOC'.
+017400000000
+017500000000:elist.
+017600000000
+017700000000.*---------------------------------------------------------------------
+017800000000.* include a command line that allows parameters for options
+017900000000.*---------------------------------------------------------------------
+018000000000:cmdline size=SHORT.
+018100000000Parameters or command
+018200000000
+018300000000.*=====================================================================
+018400000000.* End of panel
+018500000000.*=====================================================================
+018600000000:epanel.
+018700000000
+018800000000.*=====================================================================
+018900000000.*  Help for job list display
+019000000000.*=====================================================================
+019100000000:help    name=JLIST.
+019200000000Work with Job Control Options - Help
+019300000000:p.The Work with Job Control Options panel displays the jobs from the
+019400000000master Job Control Options and Constants (REV460/AC04) file.
+019500000000:ehelp.
+019600000000
+019700000000.*---------------------------------------------------------------------
+019800000000:help    name='JLIST/SKIPTO'.
+019900000000Position to (JOBID) - Help
+020000000000:xh3.Position to (JOBID)
+020100000000:p.Specifies the name to use for skip-to positioning on the list panel
+020200000000for the Work with Job Control Options (WRKJBCTLOP) command.
+020300000000:ehelp.
+020400000000
+020500000000.*---------------------------------------------------------------------
+020600000000:help    name='JLIST/OPTS'.
+020700000000Options - Help
+020800000000:xh3.Options
+020900000000:ehelp.
+021000000000
+021100000000:help    name='JLIST/OPT1'.
+021200000000:parml.
+021300000000:pt.1=Add
+021400000000:pd.
+021500000000Add new job control options.
+021600000000:eparml.
+021700000000:ehelp.
+021800000000
+021900000000:help    name='JLIST/OPT2'.
+022000000000:parml.
+022100000000:pt.2=Change
+022200000000:pd.
+022300000000Change job control options.
+022400000000:eparml.
+022500000000:ehelp.
+022600000000
+022700000000:help    name='JLIST/OPT3'.
+022800000000:parml.
+022900000000:pt.3=Copy
+023000000000:pd.
+023100000000Copy job control options to a new job.
+023200000000:eparml.
+023300000000:ehelp.
+023400000000
+023500000000:help    name='JLIST/OPT4'.
+023600000000:parml.
+023700000000:pt.4=Remove
+023800000000:pd.
+023900000000Delete job control options.
+024000000000:eparml.
+024100000000:ehelp.
+024200000000
+024300000000:help    name='JLIST/OPT5'.
+024400000000:parml.
+024500000000:pt.5=Display
+024600000000:pd.
+024700000000Display job control options.
+024800000000:eparml.
+024900000000:ehelp.
+025000000000
+025100000000:help    name='JLIST/OPT9'.
+025200000000:parml.
+025300000000:pt.9=Replicate
+025400000000:pd.
+025500000000Replicate job control options to one or more local companies.
+025600000000:eparml.
+025700000000:ehelp.
+025800000000
+025900000000:help    name='JLIST/OPT10'.
+026000000000:parml.
+026100000000:pt.10=Defaults
+026200000000:pd.
+026300000000Transfer to the Work with Job Control Defaults (WRKJBCTLDF) command.
+026400000000:eparml.
+026500000000:ehelp.
+026600000000
+026700000000.*---------------------------------------------------------------------
+026800000000:help    name='JLIST/STAT'.
+026900000000Status - Help
+027000000000:xh3.Status
+027100000000:p.This is the status for a job record.  '1' is active, '0' or blank
+027200000000is inactive.
+027300000000:ehelp.
+027400000000
+027500000000.*---------------------------------------------------------------------
+027600000000:help    name='JLIST/JOB'.
+027700000000Job name - Help
+027800000000:xh3.Job name
+027900000000:p.This is the job name.  It is only referenced internally for identifying
+028000000000Job Control Options and Constants associated with a process.
+028100000000:ehelp.
+028200000000
+028300000000.*---------------------------------------------------------------------
+028400000000:help    name='JLIST/TTL'.
+028500000000Job title - Help
+028600000000:xh3.Job title
+028700000000:p.This is the title associated with the job.
+028800000000:ehelp.
+028900000000
+029000000000.*---------------------------------------------------------------------
+029100000000:help    name='JLIST/LOC'.
+029200000000Location selection - Help
+029300000000:xh3.Location selection
+029400000000:p.This is the location selection text (if any) associated with the job.
+029500000000:ehelp.
+029600000000
+029700000000.*---------------------------------------------------------------------
+029800000000:help    name=KLIST.
+029900000000Function Keys - Help
+030000000000:xh3.Function keys
+030100000000:ehelp.
+030200000000
+030300000000:help    name=HELP.
+030400000000:parml.
+030500000000:pt.F1=Help
+030600000000:pd.
+030700000000Provides additional information about using the display or a
+030800000000specific field on the display.
+030900000000:eparml.
+031000000000:ehelp.
+031100000000
+031200000000:help    name=EXIT.
+031300000000:parml.
+031400000000:pt.F3=Exit
+031500000000:pd.
+031600000000Ends the current task and returns to the display from which the
+031700000000task was started.
+031800000000:eparml.
+031900000000:ehelp.
+032000000000
+032100000000:help    name=PROMPT.
+032200000000:parml.
+032300000000:pt.F4=Prompt
+032400000000:pd.
+032500000000Provides assistance in typing additional parameter values for an
+032600000000option or in using a command.
+032700000000:eparml.
+032800000000:ehelp.
+032900000000
+033000000000:help    name=REFRESH.
+033100000000:parml.
+033200000000:pt.F5=Refresh
+033300000000:pd.
+033400000000Shows the display you are viewing with updated information.
+033500000000:eparml.
+033600000000:ehelp.
+033700000000
+033800000000:help    name=RETRIEVE.
+033900000000:parml.
+034000000000:pt.F9=Retrieve
+034100000000:pd.
+034200000000Displays the last command you entered on the command line and
+034300000000any parameters you included.  The first time this key is pressed, it
+034400000000shows the last command you ran.  The second time this key is pressed,
+034500000000it shows the command you ran before that -- and so on.
+034600000000:eparml.
+034700000000:ehelp.
+034800000000
+034900000000:help    name=TOP.
+035000000000:parml.
+035100000000:pt.F17=Top of List
+035200000000:pd.
+035300000000Position to the first entry in the list.
+035400000000:eparml.
+035500000000:ehelp.
+035600000000
+035700000000:help    name=BOTTOM.
+035800000000:parml.
+035900000000:pt.F18=End of List
+036000000000:pd.
+036100000000Position to the last entry in the list.
+036200000000:eparml.
+036300000000:ehelp.
+036400000000
+036500000000:help    name=MOREOPTS.
+036600000000:parml.
+036700000000:pt.F23=More options
+036800000000:pd.
+036900000000Shows additional list options on the display.  The options can be
+037000000000used even when they are not shown on the display.
+037100000000:eparml.
+037200000000:ehelp.
+037300000000
+037400000000:help    name=MOREKEYS.
+037500000000:parml.
+037600000000:pt.F24=More keys
+037700000000:pd.
+037800000000Shows additional function keys on the display.  The function keys
+037900000000can be used even when they are not shown on the display.
+038000000000:eparml.
+038100000000:ehelp.
+038200000000
+038300000000:help    name=ENTERKY.
+038400000000:parml.
+038500000000:pt.ENTER key
+038600000000:pd.
+038700000000Submits information on the display for processing.
+038800000000:eparml.
+038900000000:ehelp.
+039000000000
+039100000000:help    name=HELPKY.
+039200000000:parml.
+039300000000:pt.HELP key
+039400000000:pd.
+039500000000Provides additional information about using the display or a
+039600000000specific field on the display.
+039700000000:eparml.
+039800000000:ehelp.
+039900000000
+040000000000:help    name=PAGEDNKY.
+040100000000:parml.
+040200000000:pt.PageDown (RollUp) key
+040300000000:pd.
+040400000000Moves forward to show additional information for this display.  Page
+040500000000Down (Roll Up) shows the next group of items until you reach the end
+040600000000of the information.
+040700000000:eparml.
+040800000000:ehelp.
+040900000000
+041000000000:help    name=PAGEUPKY.
+041100000000:parml.
+041200000000:pt.PageUp (RollDown) key
+041300000000:pd.
+041400000000Moves backward to show additional information for this display.  Page
+041500000000Up (Roll Down) shows the previous group of items until you reach the
+041600000000beginning of the information.
+041700000000:eparml.
+041800000000:ehelp.
+041900000000
+042000000000:help    name=PRINTKY.
+042100000000:parml.
+042200000000:pt.PRINT key
+042300000000:pd.
+042400000000Prints information currently shown on the display.
+042500000000:eparml.
+042600000000:ehelp.
+042700000000
+042800000000.************************************************************************
+042900000000.*  Help for command WRKJBCTLOP
+043000000000.************************************************************************
+043100000000:help name='WRKJBCTLOP'.
+043200000000Work with Job Control Options - Help
+043300000000:xh3.1. Work with Job Control Options
+043400000000:p.The Work with Job Control Options (WRKJBCTLOP) command allows text
+043500000000for Job Control Options and Constants to be managed in the REV460/AC04
+043600000000file from a UIM List Panel.  The associated text determines which
+043700000000options and constants parameters will be prompted for at execution
+043800000000time of the associated job.
+043900000000:note.Additional built-in help is available once the UIM List Panel
+044000000000is displayed.
+044100000000:ent.
+044200000000:ehelp.
+044300000000
+044400000000.*******************************************
+044500000000.*   Help for parameter JOBID
+044600000000.*******************************************
+044700000000:help name='WRKJBCTLOP/JOBID'.
+044800000000Position to job (JOBID) - Help
+044900000000:xh3.Position to job (JOBID)
+045000000000:p.Specifies the name to use for initial positioning on the list panel
+045100000000for the Work with Job Control Options (WRKJBCTLOP) command.
+045200000000:ehelp.
+045300000000
+045400000000.*******************************************
+045500000000.*   Help for parameter JOB
+045600000000.*******************************************
+045700000000:help name='WRKJBCTLOP/JOB'.
+045800000000Job name (JOB) - Help
+045900000000:xh3.Job name (JOB)
+046000000000:p.Specifies the name to use as the key identifier when accessing
+046100000000the text for the associated Job Control Options and Constants.
+046200000000:p.This is a required parameter.
+046300000000:ehelp.
+046400000000
+046500000000.*******************************************
+046600000000.*   Help for parameter TITLE
+046700000000.*******************************************
+046800000000:help name='WRKJBCTLOP/TITLE'.
+046900000000Job title (TITLE) - Help
+047000000000:xh3.Job title (TITLE)
+047100000000:p.Specifies title to display along with
+047200000000the text for the associated Job Control Options and Constants.
+047300000000:parml.
+047400000000:pt.:pv.character-value:epv.
+047500000000:pd.
+047600000000Up to 25 characters may be entered for the job title.
+047700000000:pt.:pk def.*NONE:epk.
+047800000000:pd.
+047900000000Use this keyword if no job title is desired.
+048000000000:eparml.
+048100000000:ehelp.
+048200000000
+048300000000.*******************************************
+048400000000.*   Help for parameter DATE1
+048500000000.*******************************************
+048600000000:help name='WRKJBCTLOP/DATE1'.
+048700000000Date parameter 1 (DATE1) - Help
+048800000000:xh3.Date parameter 1 (DATE1)
+048900000000:p.Specifies up to 50 characters for the text to be associated with
+049000000000the first date parameter for the associated Job Control Options
+049100000000and Constants.  If omitted or indented then the first date parameter
+049200000000will not be prompted for at execution time of the associated job.
+049300000000:note.To indent this text, start with a period as the first
+049400000000character.  To highlight one or more words of this text, use braces
+049500000000to surround the desired word(s).  An opening brace begins highlighting
+049600000000and a closing brace ends highlighting.  Highlighting automatically
+049700000000ends at 50 characters even if no closing brace is specified.
+049800000000:ent.
+049900000000:ehelp.
+050000000000
+050100000000.*******************************************
+050200000000.*   Help for parameter DATE2
+050300000000.*******************************************
+050400000000:help name='WRKJBCTLOP/DATE2'.
+050500000000Date parameter 2 (DATE2) - Help
+050600000000:xh3.Date parameter 2 (DATE2)
+050700000000:p.Specifies up to 50 characters for the text to be associated with
+050800000000the second date parameter for the associated Job Control Options
+050900000000and Constants.  If omitted or indented then the second date parameter
+051000000000will not be prompted for at execution time of the associated job.
+051100000000:note.To indent this text, start with a period as the first
+051200000000character.  To highlight one or more words of this text, use braces
+051300000000to surround the desired word(s).  An opening brace begins highlighting
+051400000000and a closing brace ends highlighting.  Highlighting automatically
+051500000000ends at 50 characters even if no closing brace is specified.
+051600000000:ent.
+051700000000:ehelp.
+051800000000
+051900000000.*******************************************
+052000000000.*   Help for parameter SELOPT
+052100000000.*******************************************
+052200000000:help name='WRKJBCTLOP/SELOPT'.
+052300000000Selection option (SELOPT) - Help
+052400000000:xh3.Selection option (SELOPT)
+052500000000:p.Specifies up to 98 characters for the text to be associated with
+052600000000the selection option parameter for the associated Job Control Options
+052700000000and Constants.  If omitted or indented then the selection option parameter
+052800000000will not be prompted for at execution time of the associated job.
+052900000000:note.To indent this text, start with a period as the first
+053000000000character.  This text is then automatically word-wrapped and indented by
+053100000000two spaces for the second 50-character line on the prompt screen.  To
+053200000000highlight one or more words of this text, use braces to surround the
+053300000000desired word(s).  An opening brace begins highlighting and a closing
+053400000000brace ends highlighting.  Highlighting automatically ends at 50
+053500000000characters even if no closing brace is specified.
+053600000000:ent.
+053700000000:ehelp.
+053800000000
+053900000000.*******************************************
+054000000000.*   Help for parameter OPTION1
+054100000000.*******************************************
+054200000000:help name='WRKJBCTLOP/OPTION1'.
+054300000000Processing option 1 (OPTION1) - Help
+054400000000:xh3.Processing option 1 (OPTION1)
+054500000000:p.Specifies up to 98 characters for the text to be associated with
+054600000000the first option parameter for the associated Job Control Options
+054700000000and Constants.  If omitted or indented then the first option parameter
+054800000000will not be prompted for at execution time of the associated job.
+054900000000:note.To indent this text, start with a period as the first
+055000000000character.  This text is then automatically word-wrapped and indented by
+055100000000two spaces for the second 50-character line on the prompt screen.  To
+055200000000highlight one or more words of this text, use braces to surround the
+055300000000desired word(s).  An opening brace begins highlighting and a closing
+055400000000brace ends highlighting.  Highlighting automatically ends at 50
+055500000000characters even if no closing brace is specified.
+055600000000:ent.
+055700000000:ehelp.
+055800000000
+055900000000.*******************************************
+056000000000.*   Help for parameter OPTION2
+056100000000.*******************************************
+056200000000:help name='WRKJBCTLOP/OPTION2'.
+056300000000Processing option 2 (OPTION2) - Help
+056400000000:xh3.Processing option 2 (OPTION2)
+056500000000:p.Specifies up to 98 characters for the text to be associated with
+056600000000the second option parameter for the associated Job Control Options
+056700000000and Constants.  If omitted or indented then the second option parameter
+056800000000will not be prompted for at execution time of the associated job.
+056900000000:note.To indent this text, start with a period as the first
+057000000000character.  This text is then automatically word-wrapped and indented by
+057100000000two spaces for the second 50-character line on the prompt screen.  To
+057200000000highlight one or more words of this text, use braces to surround the
+057300000000desired word(s).  An opening brace begins highlighting and a closing
+057400000000brace ends highlighting.  Highlighting automatically ends at 50
+057500000000characters even if no closing brace is specified.
+057600000000:ent.
+057700000000:ehelp.
+057800000000
+057900000000.*******************************************
+058000000000.*   Help for parameter OPTION3
+058100000000.*******************************************
+058200000000:help name='WRKJBCTLOP/OPTION3'.
+058300000000Processing option 3 (OPTION3) - Help
+058400000000:xh3.Processing option 3 (OPTION3)
+058500000000:p.Specifies up to 98 characters for the text to be associated with
+058600000000the third option parameter for the associated Job Control Options
+058700000000and Constants.  If omitted or indented then the third option parameter
+058800000000will not be prompted for at execution time of the associated job.
+058900000000:note.To indent this text, start with a period as the first
+059000000000character.  This text is then automatically word-wrapped and indented by
+059100000000two spaces for the second 50-character line on the prompt screen.  To
+059200000000highlight one or more words of this text, use braces to surround the
+059300000000desired word(s).  An opening brace begins highlighting and a closing
+059400000000brace ends highlighting.  Highlighting automatically ends at 50
+059500000000characters even if no closing brace is specified.
+059600000000:ent.
+059700000000:ehelp.
+059800000000
+059900000000.*******************************************
+060000000000.*   Help for parameter OPTION4
+060100000000.*******************************************
+060200000000:help name='WRKJBCTLOP/OPTION4'.
+060300000000Processing option 4 (OPTION4) - Help
+060400000000:xh3.Processing option 4 (OPTION4)
+060500000000:p.Specifies up to 98 characters for the text to be associated with
+060600000000the fourth option parameter for the associated Job Control Options
+060700000000and Constants.  If omitted or indented then the fourth option parameter
+060800000000will not be prompted for at execution time of the associated job.
+060900000000:note.To indent this text, start with a period as the first
+061000000000character.  This text is then automatically word-wrapped and indented by
+061100000000two spaces for the second 50-character line on the prompt screen.  To
+061200000000highlight one or more words of this text, use braces to surround the
+061300000000desired word(s).  An opening brace begins highlighting and a closing
+061400000000brace ends highlighting.  Highlighting automatically ends at 50
+061500000000characters even if no closing brace is specified.
+061600000000:ent.
+061700000000:ehelp.
+061800000000
+061900000000.*******************************************
+062000000000.*   Help for parameter OPTION5
+062100000000.*******************************************
+062200000000:help name='WRKJBCTLOP/OPTION5'.
+062300000000Processing option 5 (OPTION5) - Help
+062400000000:xh3.Processing option 5 (OPTION5)
+062500000000:p.Specifies up to 98 characters for the text to be associated with
+062600000000the fifth option parameter for the associated Job Control Options
+062700000000and Constants.  If omitted or indented then the fifth option parameter
+062800000000will not be prompted for at execution time of the associated job.
+062900000000:note.To indent this text, start with a period as the first
+063000000000character.  This text is then automatically word-wrapped and indented by
+063100000000two spaces for the second 50-character line on the prompt screen.  To
+063200000000highlight one or more words of this text, use braces to surround the
+063300000000desired word(s).  An opening brace begins highlighting and a closing
+063400000000brace ends highlighting.  Highlighting automatically ends at 50
+063500000000characters even if no closing brace is specified.
+063600000000:ent.
+063700000000:ehelp.
+063800000000
+063900000000.*******************************************
+064000000000.*   Help for parameter LOCSEL
+064100000000.*******************************************
+064200000000:help name='WRKJBCTLOP/LOCSEL'.
+064300000000Location selection (LOCSEL) - Help
+064400000000:xh3.Location selection (LOCSEL)
+064500000000:p.Specifies up to 18 characters for the text to be associated with
+064600000000the location selection parameter for the associated Job Control Options
+064700000000and Constants.  If omitted or indented then the location selection parameter
+064800000000will not be prompted for at execution time of the associated job.
+064900000000:note.To indent this text, start with a period as the first
+065000000000character.  To highlight one or more words of this text, use braces
+065100000000to surround the desired word(s).  An opening brace begins highlighting
+065200000000and a closing brace ends highlighting.  Highlighting automatically
+065300000000ends at 18 characters even if no closing brace is specified.
+065400000000:ent.
+065500000000:ehelp.
+065600000000
+065700000000:epnlgrp.

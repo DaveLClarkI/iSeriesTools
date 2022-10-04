@@ -1,0 +1,66 @@
+000100000000.******************************************************************************/
+000200000000.* Program Name:      CPYJBCTLOP -- Copy Job Control Options - Help           */
+000300000000.* Programmer:        Dave L Clark I                                          */
+000400000000.* Date:              November 8, 2018                                        */
+000500000000.* Project/Request #: IN-57 Create Commands to Maintain Job Control Options   */
+000600000000.* Purpose:           This command allows Job Control Options (AC04) to be    */
+000700000000.*                    copied.                                                 */
+000800000000.******************************************************************************/
+000900000000.* Modification Log:                                                          */
+001000000000.*                                                                            */
+001100000000.* Mod#    Date       User       Description                                  */
+001200000000.* ---- ---------- ---------- ----------------------------------------------- */
+001300000000.* M000 11/08/2018 DLCLARK    Initial design.                                 */
+001400000000.******************************************************************************/
+001500000000:pnlgrp.
+001600000000:import name='*' pnlgrp='WRKJBCTLOP'.
+001700000000
+001800000000.************************************************************************
+001900000000.*  Help for command CPYJBCTLOP
+002000000000.************************************************************************
+002100000000:help name='CPYJBCTLOP'.
+002200000000Copy Job Control Options - Help
+002300000000:xh3.5. Copy Job Control Options
+002400000000:p.The Copy Job Control Options (CPYJBCTLOP) command allows text for
+002500000000Job Control Options and Constants to be copied from one job to another
+002600000000in the REV460/AC04 file.  This text determines which options and constants
+002700000000parameters will be prompted for at execution time of the associated job.
+002800000000:ehelp.
+002900000000
+003000000000.*******************************************
+003100000000.*   Help for parameter JOB
+003200000000.*******************************************
+003300000000:help name='CPYJBCTLOP/JOB'.
+003400000000:imhelp name='WRKJBCTLOP/JOB'.
+003500000000:ehelp.
+003600000000
+003700000000.*******************************************
+003800000000.*   Help for parameter TOJOB
+003900000000.*******************************************
+004000000000:help name='CPYJBCTLOP/TOJOB'.
+004100000000New job name (TOJOB) - Help
+004200000000:xh3.New job name (TOJOB)
+004300000000:p.Specifies the new name to use as the key identifier when accessing
+004400000000the text for the associated Job Control Options and Constants.
+004500000000:p.This is a required parameter.
+004600000000:ehelp.
+004700000000
+004800000000.*******************************************
+004900000000.*   Help for parameter TITLE
+005000000000.*******************************************
+005100000000:help name='CPYJBCTLOP/TITLE'.
+005200000000New job title (TITLE) - Help
+005300000000:xh3.New job title (TITLE)
+005400000000:p.Specifies new title to display along with
+005500000000the text for the associated Job Control Options and Constants.
+005600000000:parml.
+005700000000:pt.:pv.character-value:epv.
+005800000000:pd.
+005900000000Up to 25 characters may be entered for the job title.
+006000000000:pt.:pk def.*NONE:epk.
+006100000000:pd.
+006200000000Use this keyword if no job title is desired.
+006300000000:eparml.
+006400000000:ehelp.
+006500000000
+006600000000:epnlgrp.

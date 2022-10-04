@@ -1,0 +1,44 @@
+000100000000.******************************************************************************/
+000200000000.* Program Name:      DLTJBCTLDF -- Delete Job Control Defaults - Help        */
+000300000000.* Programmer:        Dave L Clark I                                          */
+000400000000.* Date:              November 8, 2018                                        */
+000500000000.* Project/Request #: IN-58 Create Commands to Maintain Job Control Defaults  */
+000600000000.* Purpose:           This command allows Job Control Defaults (AC29) to be   */
+000700000000.*                    deleted.                                                */
+000800000000.******************************************************************************/
+000900000000.* Modification Log:                                                          */
+001000000000.*                                                                            */
+001100000000.* Mod#    Date       User       Description                                  */
+001200000000.* ---- ---------- ---------- ----------------------------------------------- */
+001300000000.* M000 11/08/2018 DLCLARK    Initial design.                                 */
+001400000000.******************************************************************************/
+001500000000:pnlgrp.
+001600000000:import name='*' pnlgrp='WRKJBCTLDF'.
+001700000000
+001800000000.************************************************************************
+001900000000.*  Help for command DLTJBCTLDF
+002000000000.************************************************************************
+002100000000:help name='DLTJBCTLDF'.
+002200000000Delete Job Control Defaults - Help
+002300000000:xh3.14. Delete Job Control Defaults
+002400000000:p.The Delete Job Control Defaults (DLTJBCTLDF) command allows values for
+002500000000Job Control Option Defaults to be deleted from the REV460/AC29
+002600000000file.  These values are used the first time a job control options and
+002700000000constants record is created at execution time for the associated job.
+002800000000:ehelp.
+002900000000
+003000000000.*******************************************
+003100000000.*   Help for parameter JOB
+003200000000.*******************************************
+003300000000:help name='DLTJBCTLDF/JOB'.
+003400000000:imhelp name='WRKJBCTLDF/JOB'.
+003500000000:ehelp.
+003600000000
+003700000000.*******************************************
+003800000000.*   Help for parameter TITLE
+003900000000.*******************************************
+004000000000:help name='DLTJBCTLDF/TITLE'.
+004100000000:imhelp name='WRKJBCTLDF/TITLE'.
+004200000000:ehelp.
+004300000000
+004400000000:epnlgrp.

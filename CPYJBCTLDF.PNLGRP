@@ -1,0 +1,59 @@
+000100000000.******************************************************************************/
+000200000000.* Program Name:      CPYJBCTLDF -- Copy Job Control Defaults - Help          */
+000300000000.* Programmer:        Dave L Clark I                                          */
+000400000000.* Date:              November 8, 2018                                        */
+000500000000.* Project/Request #: IN-58 Create Commands to Maintain Job Control Defaults  */
+000600000000.* Purpose:           This command allows Job Control Defaults (AC29) to be   */
+000700000000.*                    copied.                                                 */
+000800000000.******************************************************************************/
+000900000000.* Modification Log:                                                          */
+001000000000.*                                                                            */
+001100000000.* Mod#    Date       User       Description                                  */
+001200000000.* ---- ---------- ---------- ----------------------------------------------- */
+001300000000.* M000 11/08/2018 DLCLARK    Initial design.                                 */
+001400000000.******************************************************************************/
+001500000000:pnlgrp.
+001600000000:import name='*' pnlgrp='WRKJBCTLDF'.
+001700000000
+001800000000.************************************************************************
+001900000000.*  Help for command CPYJBCTLDF
+002000000000.************************************************************************
+002100000000:help name='CPYJBCTLDF'.
+002200000000Copy Job Control Defaults - Help
+002300000000:xh3.12. Copy Job Control Defaults
+002400000000:p.The Copy Job Control Defaults (CPYJBCTLDF) command allows values for
+002500000000Job Control Option Defaults to be copied from one job to another in the
+002600000000REV460/AC29 file.  These values are used the first time a job control
+002700000000options and constants record is created at execution time for the
+002800000000associated job.
+002900000000:ehelp.
+003000000000
+003100000000.*******************************************
+003200000000.*   Help for parameter JOB
+003300000000.*******************************************
+003400000000:help name='CPYJBCTLDF/JOB'.
+003500000000:imhelp name='WRKJBCTLDF/JOB'.
+003600000000:ehelp.
+003700000000
+003800000000.*******************************************
+003900000000.*   Help for parameter TOJOB
+004000000000.*******************************************
+004100000000:help name='CPYJBCTLDF/TOJOB'.
+004200000000New job name (TOJOB) - Help
+004300000000:xh3.New job name (TOJOB)
+004400000000:p.Specifies the new name to use as the key identifier when accessing
+004500000000the values for the associated Job Control Option Defaults.
+004600000000:p.This is a required parameter.
+004700000000:ehelp.
+004800000000
+004900000000.*******************************************
+005000000000.*   Help for parameter TITLE
+005100000000.*******************************************
+005200000000:help name='CPYJBCTLDF/TITLE'.
+005300000000New job title (TITLE) - Help
+005400000000:xh3.New job title (TITLE)
+005500000000:p.Specifies new title to display along with
+005600000000the values for the associated Job Control Option Defaults.
+005700000000:ehelp.
+005800000000
+005900000000:epnlgrp.

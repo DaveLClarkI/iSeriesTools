@@ -1,0 +1,47 @@
+000100000000.******************************************************************************/
+000200000000.* Program Name:      DLTJBCTLOP -- Delete Job Control Options - Help         */
+000300000000.* Programmer:        Dave L Clark I                                          */
+000400000000.* Date:              November 8, 2018                                        */
+000500000000.* Project/Request #: IN-57 Create Commands to Maintain Job Control Options   */
+000600000000.* Purpose:           This command allows Job Control Options (AC04) to be    */
+000700000000.*                    deleted.                                                */
+000800000000.******************************************************************************/
+000900000000.* Modification Log:                                                          */
+001000000000.*                                                                            */
+001100000000.* Mod#    Date       User       Description                                  */
+001200000000.* ---- ---------- ---------- ----------------------------------------------- */
+001300000000.* M000 11/08/2018 DLCLARK    Initial design.                                 */
+001400000000.******************************************************************************/
+001500000000:pnlgrp.
+001600000000:import name='*' pnlgrp='WRKJBCTLOP'.
+001700000000
+001800000000.************************************************************************
+001900000000.*  Help for command DLTJBCTLOP
+002000000000.************************************************************************
+002100000000:help name='DLTJBCTLOP'.
+002200000000Delete Job Control Options - Help
+002300000000:xh3.7. Delete Job Control Options
+002400000000:p.The Delete Job Control Options (DLTJBCTLOP) command allows text for
+002500000000Job Control Options and Constants to be deleted from the REV460/AC04
+002600000000file.  This text determines which options and constants parameters
+002700000000will be prompted for at execution time of the associated job.
+002800000000:note.The first delete request simply inactivates the specified job.  A
+002900000000delete request for an inactive job then physically deletes the job.
+003000000000:ent.
+003100000000:ehelp.
+003200000000
+003300000000.*******************************************
+003400000000.*   Help for parameter JOB
+003500000000.*******************************************
+003600000000:help name='DLTJBCTLOP/JOB'.
+003700000000:imhelp name='WRKJBCTLOP/JOB'.
+003800000000:ehelp.
+003900000000
+004000000000.*******************************************
+004100000000.*   Help for parameter TITLE
+004200000000.*******************************************
+004300000000:help name='DLTJBCTLOP/TITLE'.
+004400000000:imhelp name='WRKJBCTLOP/TITLE'.
+004500000000:ehelp.
+004600000000
+004700000000:epnlgrp.

@@ -1,0 +1,240 @@
+000100000000.******************************************************************************/
+000200000000.* Program Name:      RPLJBCTLOP -- Replicate Job Control Options - Help      */
+000300000000.* Programmer:        Dave L Clark I                                          */
+000400000000.* Date:              November 8, 2018                                        */
+000500000000.* Project/Request #: IN-57 Create Commands to Maintain Job Control Options   */
+000600000000.* Purpose:           This command allows Job Control Options (AC04) to be    */
+000700000000.*                    replicated across companies.                            */
+000800000000.******************************************************************************/
+000900000000.* Modification Log:                                                          */
+001000000000.*                                                                            */
+001100000000.* Mod#    Date       User       Description                                  */
+001200000000.* ---- ---------- ---------- ----------------------------------------------- */
+001300000000.* M000 11/08/2018 DLCLARK    Initial design.                                 */
+001400000000.******************************************************************************/
+001500000000:pnlgrp.
+001600000000:import name='*' pnlgrp='WRKJBCTLOP'.
+001700000000
+001800000000.************************************************************************
+001900000000.*  Help for command RPLJBCTLOP
+002000000000.************************************************************************
+002100000000:help name='RPLJBCTLOP'.
+002200000000Replicate Job Control Options - Help
+002300000000:xh3.9. Replicate Job Control Options
+002400000000:p.The Replicate Job Control Options (RPLJBCTLOP) command allows text for
+002500000000Job Control Options and Constants to be replicated across companies from
+002600000000the REV460/AC04 file.  This text determines which options and constants
+002700000000parameters will be prompted for at execution time of the associated job.
+002800000000:ehelp.
+002900000000
+003000000000.*******************************************
+003100000000.*   Help for parameter JOB
+003200000000.*******************************************
+003300000000:help name='RPLJBCTLOP/JOB'.
+003400000000:imhelp name='WRKJBCTLOP/JOB'.
+003500000000:ehelp.
+003600000000
+003700000000.*******************************************
+003800000000.*   Help for parameter TITLE
+003900000000.*******************************************
+004000000000:help name='RPLJBCTLOP/TITLE'.
+004100000000:imhelp name='WRKJBCTLOP/TITLE'.
+004200000000:ehelp.
+004300000000
+004400000000.*******************************************
+004500000000.*   Help for parameter COMPANY
+004600000000.*******************************************
+004700000000:help name='RPLJBCTLOP/COMPANY'.
+004800000000Company number range (COMPANY) - Help
+004900000000:xh3.Company number range (COMPANY)
+005000000000:p.Specifies the company or company range across which to replicate the
+005100000000Job Control Options and Constants for the specified job name.
+005200000000:nt.Cannot be specified in combination with the Company number list
+005300000000(COLIST) parameter.
+005400000000:ent.
+005500000000
+005600000000:p.:hp2.Element 1: From (or only):ehp2.
+005700000000:parml.
+005800000000:pt.:pv.00001-99999:epv.
+005900000000:pd.
+006000000000If specified, the company number must be five numeric characters in
+006100000000length.
+006200000000:eparml.
+006300000000:p.:hp2.Special values:ehp2.
+006400000000:parml.
+006500000000:pt.:pk.*ALL:epk.
+006600000000:pd.
+006700000000Use this special value to indicate that all company data libraries
+006800000000are to be processed.
+006900000000:pt.:pk.*LIBL:epk.
+007000000000:pd.
+007100000000The company data library is determined from the current library
+007200000000list.  If no company data library is found in the current library
+007300000000list, then an exception is raised.
+007400000000:eparml.
+007500000000
+007600000000:p.:hp2.Element 2: Thru (optional):ehp2.
+007700000000:parml.
+007800000000:pt.:pv.00001-99999:epv.
+007900000000:pd.
+008000000000If specified, the last company number to be processed must be five
+008100000000numeric characters in length.  If From company is not a
+008200000000company number then this element is ignored.  If this element
+008300000000is omitted, then only one data library is processed unless the *ALL
+008400000000special value is specified for From company.
+008500000000:eparml.
+008600000000:ehelp.
+008700000000
+008800000000.*******************************************
+008900000000.*   Help for parameter COLIST
+009000000000.*******************************************
+009100000000:help name='RPLJBCTLOP/COLIST'.
+009200000000Company number list (COLIST) - Help
+009300000000:xh3.Company number list (COLIST)
+009400000000:p.Specifies a list of company numbers all of which are to receive
+009500000000replication of the Job Control Options and Constants for the specified
+009600000000job name.  You can specify up to 99 values for this parameter.
+009700000000:nt.Cannot be specified in combination with the Company number range
+009800000000(COMPANY) parameter.
+009900000000:ent.
+010000000000:parml.
+010100000000:pt.:pv.00001-99999:epv.
+010200000000:pd.
+010300000000If specified, each company number must be five numeric characters in
+010400000000length.
+010500000000:eparml.
+010600000000:ehelp.
+010700000000
+010800000000.*******************************************
+010900000000.*   Help for parameter FILTER
+011000000000.*******************************************
+011100000000:help name='RPLJBCTLOP/FILTER'.
+011200000000Company selection filters (FILTER) - Help
+011300000000:xh3.Company selection filters (FILTER)
+011400000000:p.Allows the company number range or list to be filtered by any
+011500000000combination of up to four different company attributes.
+011600000000
+011700000000:p.:hp2.Element 1: Company status:ehp2.
+011800000000:p.:hp2.Single values:ehp2.
+011900000000:parml.
+012000000000:pt.:pk def.*ALL:epk.
+012100000000:pd.
+012200000000Any company status will receive replication.
+012300000000:eparml.
+012400000000:p.:hp2.Other values (up to 5 selections):ehp2.
+012500000000:parml.
+012600000000:pt.:pk.*ACTIVE:epk.
+012700000000:pd.
+012800000000Only ACTIVE companies will receive replication.
+012900000000:pt.:pk.*APPROVED:epk.
+013000000000:pd.
+013100000000Only APPROVED companies will receive replication.
+013200000000:pt.:pk.*CLOSED:epk.
+013300000000:pd.
+013400000000Only CLOSED companies will receive replication.
+013500000000:pt.:pk.*CONSOLIDATED:epk.
+013600000000:pd.
+013700000000Only CONSOLIDATED companies will receive replication.
+013800000000:pt.:pk.*DISSOLVED:epk.
+013900000000:pd.
+014000000000Only DISSOLVED companies will receive replication.
+014100000000:pt.:pk.*EXTERNAL:epk.
+014200000000:pd.
+014300000000Only EXTERNAL companies will receive replication.
+014400000000:pt.:pk.*INACTIVE:epk.
+014500000000:pd.
+014600000000Only INACTIVE companies will receive replication.
+014700000000:pt.:pk.*MERGED:epk.
+014800000000:pd.
+014900000000Only MERGED companies will receive replication.
+015000000000:pt.:pk.*PROSPECTIVE:epk.
+015100000000:pd.
+015200000000Only PROSPECTIVE companies will receive replication.
+015300000000:pt.:pk.*TOTALED:epk.
+015400000000:pd.
+015500000000Only TOTALED companies will receive replication.
+015600000000:eparml.
+015700000000
+015800000000:p.:hp2.Element 2: Entity type:ehp2.
+015900000000:p.:hp2.Single values:ehp2.
+016000000000:parml.
+016100000000:pt.:pk def.*ALL:epk.
+016200000000:pd.
+016300000000Any entity type will receive replication.
+016400000000:eparml.
+016500000000:p.:hp2.Other values (up to 5 selections):ehp2.
+016600000000:parml.
+016700000000:pt.:pk.*CAM:epk.
+016800000000:pd.
+016900000000Only Carr of Michigan companies will receive replication.
+017000000000:pt.:pk.*CAR:epk.
+017100000000:pd.
+017200000000Only Carr Supply companies will receive replication.
+017300000000:pt.:pk.*COO:epk.
+017400000000:pd.
+017500000000Only M. Cooper Supply companies will receive replication.
+017600000000:pt.:pk.*NOL:epk.
+017700000000:pd.
+017800000000Only Noland companies will receive replication.
+017900000000:pt.:pk.*SEC:epk.
+018000000000:pd.
+018100000000Only Security Supply companies will receive replication.
+018200000000:pt.:pk.*WIN:epk.
+018300000000:pd.
+018400000000Only WinWholesale companies will receive replication.
+018500000000:pt.:pk.*WYT:epk.
+018600000000:pd.
+018700000000Only Wyatt companies will receive replication.
+018800000000:eparml.
+018900000000
+019000000000:p.:hp2.Element 3: Service region:ehp2.
+019100000000:p.:hp2.Single values:ehp2.
+019200000000:parml.
+019300000000:pt.:pk def.*ALL:epk.
+019400000000:pd.
+019500000000Any service region will receive replication.
+019600000000:eparml.
+019700000000:p.:hp2.Other values (up to 5 selections):ehp2.
+019800000000:parml.
+019900000000:pt.:pv.00-99:epv.
+020000000000:pd.
+020100000000Only companies in the requested region(s) will receive replication.
+020200000000:eparml.
+020300000000
+020400000000:p.:hp2.Element 4: Organization type:ehp2.
+020500000000:p.:hp2.Single values:ehp2.
+020600000000:parml.
+020700000000:pt.:pk def.*ALL:epk.
+020800000000:pd.
+020900000000Any organization type will receive replication.
+021000000000:eparml.
+021100000000:p.:hp2.Other values (up to 5 selections):ehp2.
+021200000000:parml.
+021300000000:pt.:pk.*AREA:epk.
+021400000000:pd.
+021500000000Only AREA companies will receive replication.
+021600000000:pt.:pk.*COMPLEX:epk.
+021700000000:pd.
+021800000000Only COMPLEX companies will receive replication.
+021900000000:pt.:pk.*CONSULTING:epk.
+022000000000:pd.
+022100000000Only CONSULTING companies will receive replication.
+022200000000:pt.:pk.*INVESTMENT:epk.
+022300000000:pd.
+022400000000Only INVESTMENT companies will receive replication.
+022500000000:pt.:pk.*LOCALOPER:epk.
+022600000000:pd.
+022700000000Only LOCAL OPERATIONS companies will receive replication.
+022800000000:pt.:pk.*SERVICE:epk.
+022900000000:pd.
+023000000000Only SERVICE (WGS) companies will receive replication.
+023100000000:pt.:pk.*SOURCING:epk.
+023200000000:pd.
+023300000000Only SOURCING (WSS) companies will receive replication.
+023400000000:pt.:pk.*OTHER:epk.
+023500000000:pd.
+023600000000Only OTHER companies will receive replication.
+023700000000:eparml.
+023800000000:ehelp.
+023900000000
+024000000000:epnlgrp.

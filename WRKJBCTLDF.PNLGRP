@@ -1,0 +1,642 @@
+000100000000.******************************************************************************/
+000200000000.* Program Name:      WRKJBCTLDF -- Work with Job Control Defaults - Help     */
+000300000000.* Programmer:        Dave L Clark I                                          */
+000400000000.* Date:              November 8, 2018                                        */
+000500000000.* Project/Request #: IN-58 Create Commands to Maintain Job Control Defaults  */
+000600000000.* Purpose:           This command allows Job Control Defaults (AC29) to be   */
+000700000000.*                    worked with in a list panel.                            */
+000800000000.******************************************************************************/
+000900000000.* Modification Log:                                                          */
+001000000000.*                                                                            */
+001100000000.* Mod#    Date       User       Description                                  */
+001200000000.* ---- ---------- ---------- ----------------------------------------------- */
+001300000000.* M000 11/08/2018 DLCLARK    Initial design.                                 */
+001400000000.******************************************************************************/
+001500000000:pnlgrp.
+001600000000
+001700000000:copyr.(c) Copyright Winsupply, Inc.
+001800000000
+001900000000.*=====================================================================
+002000000000.* Define data classes
+002100000000.*=====================================================================
+002200000000:class   name=OBJCLS    basetype='OBJNAME 10'.
+002300000000:eclass.
+002400000000:class   name=OPTCLS    basetype='ACTION'.
+002500000000:eclass.
+002600000000:class   name=CHAR1     basetype='CHAR 1'.
+002700000000:eclass.
+002800000000:class   name=CHAR5     basetype='CHAR 5'.
+002900000000:eclass.
+003000000000:class   name=CHAR6     basetype='CHAR 6'.
+003100000000:eclass.
+003200000000:class   name=CHAR10    basetype='CHAR 10'.
+003300000000:eclass.
+003400000000:class   name=CHAR20    basetype='CHAR 20'.
+003500000000:eclass.
+003600000000:class   name=CHAR25    basetype='CHAR 25'.
+003700000000:eclass.
+003800000000:class   name=PRMCLS    basetype='CHAR 255'.
+003900000000:eclass.
+004000000000
+004100000000.*============================~========================================
+004200000000.* Define data variables
+004300000000.*=====================================================================
+004400000000:var     name=ILEXPGM   class=CHAR20.
+004500000000:var     name=PNLID     class=OBJCLS.
+004600000000:var     name=JOBID     class=CHAR6.
+004700000000
+004800000000:var     name=OPT       class=OPTCLS.
+004900000000:var     name=STAT      class=CHAR1.
+005000000000:var     name=JOB       class=CHAR6.
+005100000000:var     name=TTL       class=CHAR25.
+005200000000:var     name=DATE1     class=CHAR10.
+005300000000:var     name=DATE2     class=CHAR10.
+005400000000:var     name=SEL       class=CHAR6.
+005500000000:var     name=OPT5      class=CHAR5.
+005600000000
+005700000000:var     name=PRM       class=PRMCLS.
+005800000000
+005900000000.*====================================================================
+006000000000.* Define variable records and list definition
+006100000000.*====================================================================
+006200000000:varrcd  name=HEADER    vars='ILEXPGM PNLID JOBID'.
+006300000000:varrcd  name=JOBDTL    vars='OPT STAT JOB TTL DATE1 DATE2 SEL OPT5'.
+006400000000
+006500000000:listdef name=JOBLST    vars='OPT STAT JOB TTL DATE1 DATE2 SEL OPT5'.
+006600000000
+006700000000.*=====================================================================
+006800000000.* Define the key list
+006900000000.*=====================================================================
+007000000000:keyl    name=KEYS      help=KLIST.
+007100000000
+007200000000:keyi    key=F1         help=HELP      action='HELP'.
+007300000000F1=Help
+007400000000:keyi    key=F3         help=EXIT      action='EXIT SET'   varupd=NO.
+007500000000F3=Exit
+007600000000:keyi    key=F4         help=PROMPT    action='PROMPT'.
+007700000000F4=Prompt
+007800000000:keyi    key=F5         help=REFRESH   action='RETURN 5'   varupd=NO.
+007900000000F5=Refresh
+008000000000:keyi    key=F9         help=RETRIEVE  action='RETRIEVE'.
+008100000000F9=Retrieve
+008200000000:keyi    key=F17        help=TOP       action='RETURN 2'.
+008300000000F17=Top of List
+008400000000:keyi    key=F18        help=BOTTOM    action='RETURN 3'.
+008500000000F18=End of List
+008600000000:keyi    key=F24        help=MOREKEYS  action='MOREKEYS'.
+008700000000F24=More keys
+008800000000:keyi    key=ENTER      help=ENTERKY   action='ENTER'.
+008900000000:keyi    key=HELP       help=HELPKY    action='HELP'.
+009000000000:keyi    key=PAGEUP     help=PAGEUPKY  action='PAGEUP'.
+009100000000:keyi    key=PAGEDOWN   help=PAGEDNKY  action='PAGEDOWN'.
+009200000000:keyi    key=PRINT      help=PRINTKY   action='PRINT'.
+009300000000
+009400000000:ekeyl.
+009500000000
+009600000000.*=====================================================================
+009700000000.* Define the panel
+009800000000.*=====================================================================
+009900000000:panel   name=WRKJBCTL  help=JLIST     keyl=KEYS      enter='RETURN 1'
+010000000000         panelid=PNLID  depth=FIT      width=80       topsep=SYSNAM.
+010100000000Work with Job Control Defaults
+010200000000
+010300000000:data    depth=2.
+010400000000:datacol width=17.
+010500000000:datacol width=6.
+010600000000:datacol width='*'.
+010700000000
+010800000000:datai   var=JOBID      usage=INOUT    help='JLIST/SKIPTO'.
+010900000000Position to
+011000000000
+011100000000:edata.
+011200000000
+011300000000.*=====================================================================
+011400000000.* Define the List
+011500000000.*=====================================================================
+011600000000:list    actor=CALLER   depth='*'      extact=YES     listdef=JOBLST
+011700000000         maxhead=1      maxactl=1      parms=PRM.
+011800000000
+011900000000:topinst.Type options, press Enter.
+012000000000
+012100000000.*---------------------------------------------------------------------
+012200000000.* Define the actions for each option in the list
+012300000000.*---------------------------------------------------------------------
+012400000000:listact option=1       actfor=EXTACTE help='JLIST/OPT1'.
+0125000000001=Add
+012600000000:listact option=2       actfor=LISTE   help='JLIST/OPT2'.
+0127000000002=Change
+012800000000:listact option=3       actfor=LISTE   help='JLIST/OPT3'.
+0129000000003=Copy
+013000000000:listact option=4       actfor=LISTE   help='JLIST/OPT4'.
+0131000000004=Delete
+013200000000:listact option=9       actfor=LISTE   help='JLIST/OPT9'.
+0133000000009=Replicate
+013400000000:listact option=10      actfor=LISTE   help='JLIST/OPT10'.
+01350000000010=Options
+013600000000
+013700000000.*---------------------------------------------------------------------
+013800000000.* Define the columns and headings in the list
+013900000000.*---------------------------------------------------------------------
+014000000000:listcol var=OPT        maxwidth=2     usage=INOUT    extact=YES
+014100000000                                                      help='JLIST/OPTS'.
+014200000000Op
+014300000000:listcol var=STAT       maxwidth=1     usage=OUT      help='JLIST/STAT'.
+014400000000S
+014500000000:listcol var=JOB        maxwidth=6     usage=OUT      extact=YES
+014600000000                                                      help='JLIST/JOB'.
+014700000000Job
+014800000000:listcol var=TTL        maxwidth=24    usage=OUT      help='JLIST/TTL'.
+014900000000'Job title'
+015000000000:listcol var=DATE1      maxwidth=10    usage=OUT      help='JLIST/DATE1'.
+015100000000'Date 1'
+015200000000:listcol var=DATE2      maxwidth=10    usage=OUT      help='JLIST/DATE2'.
+015300000000'Date 2'
+015400000000:listcol var=SEL        maxwidth=6     usage=OUT      help='JLIST/SEL'.
+015500000000Selctn
+015600000000:listcol var=OPT5       maxwidth='*'   usage=OUT      help='JLIST/OPT5'.
+015700000000Optns
+015800000000
+015900000000:listview layout=1 cols='OPT STAT JOB TTL DATE1 DATE2 SEL OPT5'.
+016000000000
+016100000000:elist.
+016200000000
+016300000000.*---------------------------------------------------------------------
+016400000000.* include a command line that allows parameters for options
+016500000000.*---------------------------------------------------------------------
+016600000000:cmdline size=SHORT.
+016700000000Parameters or command
+016800000000
+016900000000.*=====================================================================
+017000000000.* End of panel
+017100000000.*=====================================================================
+017200000000:epanel.
+017300000000
+017400000000.*=====================================================================
+017500000000.*  Help for job list display
+017600000000.*=====================================================================
+017700000000:help    name=JLIST.
+017800000000Work with Job Control Defaults - Help
+017900000000:p.The Work with Job Control Defaults panel displays the jobs from the
+018000000000master Job Control Defaults (REV460/AC29) file.
+018100000000:ehelp.
+018200000000
+018300000000.*---------------------------------------------------------------------
+018400000000:help    name='JLIST/SKIPTO'.
+018500000000Position to (JOBID) - Help
+018600000000:xh3.Position to (JOBID)
+018700000000:p.Specifies the name to use for skip-to positioning on the list panel
+018800000000for the Work with Job Control Defaults (WRKJBCTLDF) command.
+018900000000:ehelp.
+019000000000
+019100000000.*---------------------------------------------------------------------
+019200000000:help    name='JLIST/OPTS'.
+019300000000Options - Help
+019400000000:xh3.Options
+019500000000:ehelp.
+019600000000
+019700000000:help    name='JLIST/OPT1'.
+019800000000:parml.
+019900000000:pt.1=Add
+020000000000:pd.
+020100000000Add new job control defaults.
+020200000000:eparml.
+020300000000:ehelp.
+020400000000
+020500000000:help    name='JLIST/OPT2'.
+020600000000:parml.
+020700000000:pt.2=Change
+020800000000:pd.
+020900000000Change job control defaults.
+021000000000:eparml.
+021100000000:ehelp.
+021200000000
+021300000000:help    name='JLIST/OPT3'.
+021400000000:parml.
+021500000000:pt.3=Copy
+021600000000:pd.
+021700000000Copy job control defaults to a new job.
+021800000000:eparml.
+021900000000:ehelp.
+022000000000
+022100000000:help    name='JLIST/OPT4'.
+022200000000:parml.
+022300000000:pt.4=Remove
+022400000000:pd.
+022500000000Delete job control defaults.
+022600000000:eparml.
+022700000000:ehelp.
+022800000000
+022900000000:help    name='JLIST/OPT9'.
+023000000000:parml.
+023100000000:pt.9=Replicate
+023200000000:pd.
+023300000000Replicate job control defaults to one or more local companies.
+023400000000:eparml.
+023500000000:ehelp.
+023600000000
+023700000000:help    name='JLIST/OPT10'.
+023800000000:parml.
+023900000000:pt.10=Defaults
+024000000000:pd.
+024100000000Transfer to the Work with Job Control Options (WRKJBCTLOP) command.
+024200000000:eparml.
+024300000000:ehelp.
+024400000000
+024500000000.*---------------------------------------------------------------------
+024600000000:help    name='JLIST/STAT'.
+024700000000Status - Help
+024800000000:xh3.Status
+024900000000:p.This is the status for a job record.  '1' is active, '0' or blank
+025000000000is inactive.
+025100000000:ehelp.
+025200000000
+025300000000.*---------------------------------------------------------------------
+025400000000:help    name='JLIST/JOB'.
+025500000000Job name - Help
+025600000000:xh3.Job name
+025700000000:p.This is the job name.  It is only referenced internally for identifying
+025800000000Job Control Defaults associated with a process.
+025900000000:ehelp.
+026000000000
+026100000000.*---------------------------------------------------------------------
+026200000000:help    name='JLIST/TTL'.
+026300000000Job title - Help
+026400000000:xh3.Job title
+026500000000:p.This is the title associated with the job.
+026600000000:ehelp.
+026700000000
+026800000000.*---------------------------------------------------------------------
+026900000000:help    name='JLIST/DATE1'.
+027000000000Date 1 - Help
+027100000000:xh3.Date 1
+027200000000:p.This is the default date 1 value (if any) associated
+027300000000with the job.
+027400000000:ehelp.
+027500000000
+027600000000.*---------------------------------------------------------------------
+027700000000:help    name='JLIST/DATE2'.
+027800000000Date 2 - Help
+027900000000:xh3.Date 2
+028000000000:p.This is the default date 2 value (if any) associated
+028100000000with the job.
+028200000000:ehelp.
+028300000000
+028400000000.*---------------------------------------------------------------------
+028500000000:help    name='JLIST/SEL'.
+028600000000Selection - Help
+028700000000:xh3.Selection
+028800000000:p.This is the default 6-character selection value (if any) associated
+028900000000with the job.
+029000000000:ehelp.
+029100000000
+029200000000.*---------------------------------------------------------------------
+029300000000:help    name='JLIST/OPT5'.
+029400000000Five options - Help
+029500000000:xh3.Five options
+029600000000:p.These are the five default 1-character option values (if any)
+029700000000associated with the job.
+029800000000:ehelp.
+029900000000
+030000000000.*---------------------------------------------------------------------
+030100000000:help    name=KLIST.
+030200000000Function Keys - Help
+030300000000:xh3.Function keys
+030400000000:ehelp.
+030500000000
+030600000000:help    name=HELP.
+030700000000:parml.
+030800000000:pt.F1=Help
+030900000000:pd.
+031000000000Provides additional information about using the display or a
+031100000000specific field on the display.
+031200000000:eparml.
+031300000000:ehelp.
+031400000000
+031500000000:help    name=EXIT.
+031600000000:parml.
+031700000000:pt.F3=Exit
+031800000000:pd.
+031900000000Ends the current task and returns to the display from which the
+032000000000task was started.
+032100000000:eparml.
+032200000000:ehelp.
+032300000000
+032400000000:help    name=PROMPT.
+032500000000:parml.
+032600000000:pt.F4=Prompt
+032700000000:pd.
+032800000000Provides assistance in typing additional parameter values for an
+032900000000option or in using a command.
+033000000000:eparml.
+033100000000:ehelp.
+033200000000
+033300000000:help    name=REFRESH.
+033400000000:parml.
+033500000000:pt.F5=Refresh
+033600000000:pd.
+033700000000Shows the display you are viewing with updated information.
+033800000000:eparml.
+033900000000:ehelp.
+034000000000
+034100000000:help    name=RETRIEVE.
+034200000000:parml.
+034300000000:pt.F9=Retrieve
+034400000000:pd.
+034500000000Displays the last command you entered on the command line and
+034600000000any parameters you included.  The first time this key is pressed, it
+034700000000shows the last command you ran.  The second time this key is pressed,
+034800000000it shows the command you ran before that -- and so on.
+034900000000:eparml.
+035000000000:ehelp.
+035100000000
+035200000000:help    name=TOP.
+035300000000:parml.
+035400000000:pt.F17=Top of List
+035500000000:pd.
+035600000000Position to the first entry in the list.
+035700000000:eparml.
+035800000000:ehelp.
+035900000000
+036000000000:help    name=BOTTOM.
+036100000000:parml.
+036200000000:pt.F18=End of List
+036300000000:pd.
+036400000000Position to the last entry in the list.
+036500000000:eparml.
+036600000000:ehelp.
+036700000000
+036800000000:help    name=MOREKEYS.
+036900000000:parml.
+037000000000:pt.F24=More keys
+037100000000:pd.
+037200000000Shows additional function keys on the display.  The function keys
+037300000000can be used even when they are not shown on the display.
+037400000000:eparml.
+037500000000:ehelp.
+037600000000
+037700000000:help    name=ENTERKY.
+037800000000:parml.
+037900000000:pt.ENTER key
+038000000000:pd.
+038100000000Submits information on the display for processing.
+038200000000:eparml.
+038300000000:ehelp.
+038400000000
+038500000000:help    name=HELPKY.
+038600000000:parml.
+038700000000:pt.HELP key
+038800000000:pd.
+038900000000Provides additional information about using the display or a
+039000000000specific field on the display.
+039100000000:eparml.
+039200000000:ehelp.
+039300000000
+039400000000:help    name=PAGEDNKY.
+039500000000:parml.
+039600000000:pt.PageDown (RollUp) key
+039700000000:pd.
+039800000000Moves forward to show additional information for this display.  Page
+039900000000Down (Roll Up) shows the next group of items until you reach the end
+040000000000of the information.
+040100000000:eparml.
+040200000000:ehelp.
+040300000000
+040400000000:help    name=PAGEUPKY.
+040500000000:parml.
+040600000000:pt.PageUp (RollDown) key
+040700000000:pd.
+040800000000Moves backward to show additional information for this display.  Page
+040900000000Up (Roll Down) shows the previous group of items until you reach the
+041000000000beginning of the information.
+041100000000:eparml.
+041200000000:ehelp.
+041300000000
+041400000000:help    name=PRINTKY.
+041500000000:parml.
+041600000000:pt.PRINT key
+041700000000:pd.
+041800000000Prints information currently shown on the display.
+041900000000:eparml.
+042000000000:ehelp.
+042100000000
+042200000000.************************************************************************
+042300000000.*  Help for command WRKJBCTLDF
+042400000000.************************************************************************
+042500000000:help name='WRKJBCTLDF'.
+042600000000Work with Job Control Defaults - Help
+042700000000:xh3.2. Work with Job Control Defaults
+042800000000:p.The Work with Job Control Defaults (WRKJBCTLDF) command allows values
+042900000000for Job Control Option Defaults to be managed in the REV460/AC29
+043000000000file.  These values are used the first time a job control options and
+043100000000constants record is created at execution time for the associated job.
+043200000000:note.Additional built-in help is available once the UIM List Panel
+043300000000is displayed.
+043400000000:ent.
+043500000000:ehelp.
+043600000000
+043700000000.*******************************************
+043800000000.*   Help for parameter JOBID
+043900000000.*******************************************
+044000000000:help name='WRKJBCTLDF/JOBID'.
+044100000000Position to job (JOBID) - Help
+044200000000:xh3.Position to job (JOBID)
+044300000000:p.Specifies the name to use for initial positioning on the list panel
+044400000000for the Work with Job Control Defaults (WRKJBCTLDF) command.
+044500000000:ehelp.
+044600000000
+044700000000.*******************************************
+044800000000.*   Help for parameter JOB
+044900000000.*******************************************
+045000000000:help name='WRKJBCTLDF/JOB'.
+045100000000Job name (JOB) - Help
+045200000000:xh3.Job name (JOB)
+045300000000:p.Specifies the name to use as the key identifier when accessing
+045400000000the values for the associated Job Control Option Defaults.
+045500000000:p.This is a required parameter.
+045600000000:ehelp.
+045700000000
+045800000000.*******************************************
+045900000000.*   Help for parameter TITLE
+046000000000.*******************************************
+046100000000:help name='WRKJBCTLDF/TITLE'.
+046200000000Job title (TITLE) - Help
+046300000000:xh3.Job title (TITLE)
+046400000000:p.Specifies title to display along with
+046500000000the values for the associated Job Control Option Defaults.  This
+046600000000is information, only, as this title is only stored in the Job
+046700000000Control Options and Constants (AC04) file.  See the Work with
+046800000000Job Control Options (WRKJBCTLOP) command for more information.
+046900000000:ehelp.
+047000000000
+047100000000.*******************************************
+047200000000.*   Help for parameter PROC
+047300000000.*******************************************
+047400000000:help name='WRKJBCTLDF/PROC'.
+047500000000Procedure id (PROC) - Help
+047600000000:xh3.Procedure id (PROC)
+047700000000:p.Specifies the Winsuppy Procedure id (if any) which outlines how to
+047800000000use the application associated with this job.
+047900000000:ehelp.
+048000000000
+048100000000.*******************************************
+048200000000.*   Help for parameter DATE1
+048300000000.*******************************************
+048400000000:help name='WRKJBCTLDF/DATE1'.
+048500000000Date parameter 1 (DATE1) - Help
+048600000000:xh3.Date parameter 1 (DATE1)
+048700000000:p.Specifies the first default date to associate with this job.  The
+048800000000date should be specified in USA format even though it is stored in
+048900000000ISO format.
+049000000000:ehelp.
+049100000000
+049200000000.*******************************************
+049300000000.*   Help for parameter DATE2
+049400000000.*******************************************
+049500000000:help name='WRKJBCTLDF/DATE2'.
+049600000000Date parameter 2 (DATE2) - Help
+049700000000:xh3.Date parameter 2 (DATE2)
+049800000000:p.Specifies the second default date to associate with this job.  The
+049900000000date should be specified in USA format even though it is stored in
+050000000000ISO format.
+050100000000:ehelp.
+050200000000
+050300000000.*******************************************
+050400000000.*   Help for parameter SELOPT
+050500000000.*******************************************
+050600000000:help name='WRKJBCTLDF/SELOPT'.
+050700000000Selection option (SELOPT) - Help
+050800000000:xh3.Selection option (SELOPT)
+050900000000:p.Specifies up to six characters for the default selection option
+051000000000to use for this job.
+051100000000:ehelp.
+051200000000
+051300000000.*******************************************
+051400000000.*   Help for parameter OPTION1
+051500000000.*******************************************
+051600000000:help name='WRKJBCTLDF/OPTION1'.
+051700000000Processing option 1 (OPTION1) - Help
+051800000000:xh3.Processing option 1 (OPTION1)
+051900000000:p.Specifies the first 1-character default processing option to use
+052000000000for this job.
+052100000000:ehelp.
+052200000000
+052300000000.*******************************************
+052400000000.*   Help for parameter OPTION2
+052500000000.*******************************************
+052600000000:help name='WRKJBCTLDF/OPTION2'.
+052700000000Processing option 2 (OPTION2) - Help
+052800000000:xh3.Processing option 2 (OPTION2)
+052900000000:p.Specifies the second 1-character default processing option to use
+053000000000for this job.
+053100000000:ehelp.
+053200000000
+053300000000.*******************************************
+053400000000.*   Help for parameter OPTION3
+053500000000.*******************************************
+053600000000:help name='WRKJBCTLDF/OPTION3'.
+053700000000Processing option 3 (OPTION3) - Help
+053800000000:xh3.Processing option 3 (OPTION3)
+053900000000:p.Specifies the third 1-character default processing option to use
+054000000000for this job.
+054100000000:ehelp.
+054200000000
+054300000000.*******************************************
+054400000000.*   Help for parameter OPTION4
+054500000000.*******************************************
+054600000000:help name='WRKJBCTLDF/OPTION4'.
+054700000000Processing option 4 (OPTION4) - Help
+054800000000:xh3.Processing option 4 (OPTION4)
+054900000000:p.Specifies the fourth 1-character default processing option to use
+055000000000for this job.
+055100000000:ehelp.
+055200000000
+055300000000.*******************************************
+055400000000.*   Help for parameter OPTION5
+055500000000.*******************************************
+055600000000:help name='WRKJBCTLDF/OPTION5'.
+055700000000Processing option 5 (OPTION5) - Help
+055800000000:xh3.Processing option 5 (OPTION5)
+055900000000:p.Specifies the fifth 1-character default processing option to use
+056000000000for this job.
+056100000000:ehelp.
+056200000000
+056300000000.*******************************************
+056400000000.*   Help for parameter LOCSEL
+056500000000.*******************************************
+056600000000:help name='WRKJBCTLDF/LOCSEL'.
+056700000000Location selection (LOCSEL) - Help
+056800000000:xh3.Location selection (LOCSEL)
+056900000000:p.Specifies up to three characters for the default inventory location
+057000000000to use for this job.
+057100000000:ehelp.
+057200000000
+057300000000.*******************************************
+057400000000.*   Help for parameter ISSUE
+057500000000.*******************************************
+057600000000:help name='WRKJBCTLDF/ISSUE'.
+057700000000Issue to (ISSUE) - Help
+057800000000:xh3.Issue to (ISSUE)
+057900000000:p.Specifies up to ten characters for the default "issue to" user id
+058000000000to use for this job.
+058100000000:ehelp.
+058200000000
+058300000000.*******************************************
+058400000000.*   Help for parameter USEOPT1
+058500000000.*******************************************
+058600000000:help name='WRKJBCTLDF/USEOPT1'.
+058700000000Use option 1 (USEOPT1) - Help
+058800000000:xh3.Use option 1 (USEOPT1)
+058900000000:p.Specifies the first 1-character default use option to use
+059000000000for this job.
+059100000000:ehelp.
+059200000000
+059300000000.*******************************************
+059400000000.*   Help for parameter USEOPT2
+059500000000.*******************************************
+059600000000:help name='WRKJBCTLDF/USEOPT2'.
+059700000000Use option 2 (USEOPT2) - Help
+059800000000:xh3.Use option 2 (USEOPT2)
+059900000000:p.Specifies the second 1-character default use option to use
+060000000000for this job.
+060100000000:ehelp.
+060200000000
+060300000000.*******************************************
+060400000000.*   Help for parameter USEOPT3
+060500000000.*******************************************
+060600000000:help name='WRKJBCTLDF/USEOPT3'.
+060700000000Use option 3 (USEOPT3) - Help
+060800000000:xh3.Use option 3 (USEOPT3)
+060900000000:p.Specifies the third 1-character default use option to use
+061000000000for this job.
+061100000000:ehelp.
+061200000000
+061300000000.*******************************************
+061400000000.*   Help for parameter USEOPT4
+061500000000.*******************************************
+061600000000:help name='WRKJBCTLDF/USEOPT4'.
+061700000000Use option 4 (USEOPT4) - Help
+061800000000:xh3.Use option 4 (USEOPT4)
+061900000000:p.Specifies the fourth 1-character default use option to use
+062000000000for this job.
+062100000000:ehelp.
+062200000000
+062300000000.*******************************************
+062400000000.*   Help for parameter USEOPTN
+062500000000.*******************************************
+062600000000:help name='WRKJBCTLDF/USEOPTN'.
+062700000000Use number (USEOPTN) - Help
+062800000000:xh3.Use number (USEOPTN)
+062900000000:p.Specifies the default use number to use for this job.
+063000000000:ehelp.
+063100000000
+063200000000.*******************************************
+063300000000.*   Help for parameter USRPWD
+063400000000.*******************************************
+063500000000:help name='WRKJBCTLDF/USRPWD'.
+063600000000User passwords (USRPWD) - Help
+063700000000:xh3.User passwords (USRPWD)
+063800000000:p.Specifies up to 12 8-character user passwords to use
+063900000000for this job.
+064000000000:ehelp.
+064100000000
+064200000000:epnlgrp.
