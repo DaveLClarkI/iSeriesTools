@@ -1,0 +1,22 @@
+Note that this example call uses a CL-based data structure. The definition for the data structure is also shown.
+
+ DCL        VAR(&APOST)      TYPE(*CHAR) LEN(1) VALUE('''')
+ DCL        VAR(&BLANK)      TYPE(*CHAR) LEN(3) VALUE(''' ''')
+
+ DCL VAR(&VTXCFG)   TYPE(*CHAR) LEN(510)
+ DCL VAR(&VTXURL)   TYPE(*CHAR) LEN(60)  STG(*DEFINED) DEFVAR(&VTXCFG 001)
+ DCL VAR(&VTXUSR)   TYPE(*CHAR) LEN(25)  STG(*DEFINED) DEFVAR(&VTXCFG 061)
+ DCL VAR(&VTXPWD)   TYPE(*CHAR) LEN(25)  STG(*DEFINED) DEFVAR(&VTXCFG 085)
+ DCL VAR(&VTXSHR)   TYPE(*CHAR) LEN(20)  STG(*DEFINED) DEFVAR(&VTXCFG 111)
+ DCL VAR(&VTXPTN)   TYPE(*CHAR) LEN(20)  STG(*DEFINED) DEFVAR(&VTXCFG 131)
+
+ LOOKUPSQL  RTNVAL(&VTXCFG) +
+              COLUMN('CHAR(VALUE(C.URL,' || &BLANK || '),60) +
+                || VALUE(C.USRNAM,' || &BLANK || ') +
+                || VALUE(C.PW,' || &BLANK || ') +
+                || VALUE(C.SBSCRBR,' || &BLANK || ') +
+                || CHAR(VALUE(C.CNTTYPE,' || &BLANK || '),20)') +
+              TABLE('SHR460/HTTPCFG AS C') +
+              WHERE('C.APPLCTN = ' || &APOST || &APPLCTNKEY || &APOST +
+                || ' AND C.ENVRMNT = ' || &APOST || &ENVRMNTKEY || &APOST) +
+              ORDER('C.APPLCTN ASC, C.ENVRMNT ASC')
